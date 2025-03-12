@@ -1,0 +1,112 @@
+$primary-color: #3aa856;
+$primary-border: #34974d;
+$primary-hover: #34974d;
+$primary-active: #2e8644;
+
+$text-color: #fff;
+
+$hover-color: #007bff;
+$text-color-actions: #333;
+// Стили контейнера заголовка
+.header-container {
+  display: flex;
+  margin: 1%;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  gap: 3%;
+}
+.header-container-foot {
+  display: flex;
+  margin: 2%;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  gap: 3%;
+}
+// Основные стили кнопки
+.button {
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid $primary-border;
+  background-color: $primary-color;
+  transition: all 0.3s;
+
+  &__text {
+    transform: translateX(30px);
+    color: $text-color;
+    font-size: 16px;
+    font-family: "TildaSans", serif;
+    transition: all 0.3s;
+  }
+
+  &__icon {
+    position: absolute;
+    transform: translateX(109px);
+    height: 100%;
+    width: 39px;
+    background-color: $primary-border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+
+    .svg {
+      width: 30px;
+      stroke: $text-color;
+    }
+  }
+
+  &:hover {
+    background: $primary-hover;
+
+    .button__text {
+      color: transparent;
+    }
+
+    .button__icon {
+      width: 148px;
+      transform: translateX(0);
+    }
+  }
+
+  &:active {
+    border: 1px solid $primary-active;
+
+    .button__icon {
+      background-color: $primary-active;
+    }
+  }
+}
+
+
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 2%;
+}
+
+.action-text {
+  font-weight: bold;
+  font-size: 16px;
+  color: $text-color-actions;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $hover-color;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+}

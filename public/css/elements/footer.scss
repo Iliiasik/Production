@@ -1,0 +1,146 @@
+$footer-bg-color: #26272b;
+$text-color: #737373;
+$link-hover-color: #3366cc;
+$btn-bg-color: rgb(31, 31, 31);
+$btn-hover-width: 110px;
+
+.site-footer {
+  background-color: $footer-bg-color;
+  padding: 45px 0 30px;
+  font-size: 15px;
+  line-height: 24px;
+  color: $text-color;
+  text-align: center;
+
+
+  h6 {
+    color: #fff;
+    font-size: 16px;
+    text-transform: uppercase;
+    margin-top: 5px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  p {
+    color: $text-color;
+    text-align: left;
+  }
+
+  .footer-links-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+
+    .footer-links {
+      flex: 1;
+      padding: 0 15px;
+      margin-bottom: 20px;
+
+      ul {
+        padding-left: 0;
+        list-style: none;
+
+        li {
+          display: block;
+
+          a {
+            color: $text-color;
+            text-decoration: none;
+
+            &:hover {
+              color: $link-hover-color;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  hr {
+    border-top-color: lighten($footer-bg-color, 20%);
+    opacity: 0.5;
+    margin-top: 40px;
+  }
+
+  .copyright-text {
+    text-align: center;
+    color: $text-color;
+    font-size: 14px;
+    margin-top: 15px;
+  }
+
+  .footer-bottom {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  @media (max-width: 767px) {
+    .footer-links-container {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .footer-links {
+      margin-bottom: 20px;
+
+      h6 {
+        text-align: center;
+      }
+
+      ul {
+        text-align: left;
+      }
+    }
+  }
+}
+
+.Btn {
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.4s, border-radius 0.4s;
+  cursor: pointer;
+  position: relative;
+  background-color: $btn-bg-color;
+  overflow: hidden;
+
+  .svgIcon {
+    transition: opacity 0.3s;
+
+    path {
+      fill: white;
+    }
+  }
+
+  .text {
+    position: absolute;
+    color: white;
+    width: 120px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  &:hover {
+    width: $btn-hover-width;
+    border-radius: 30px;
+
+    .text {
+      opacity: 1;
+    }
+
+    .svgIcon {
+      opacity: 0;
+    }
+  }
+}

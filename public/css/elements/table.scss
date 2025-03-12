@@ -1,0 +1,71 @@
+@use 'sass:math';
+
+$base-spacing-unit: 24px;
+$half-spacing-unit: math.div($base-spacing-unit, 2);
+
+$color-primary: #4CAF50;
+$color-background: #f9f9f9;
+$color-header: #406e36;
+$color-form-highlight: #f1f1f1;
+$color-text: #333333;
+$color-text-header: #ffffff;
+
+
+
+body {
+  overflow-x: hidden;
+}
+
+.table-container {
+  padding: $base-spacing-unit;
+  background-color: $color-background;
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 18px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: $base-spacing-unit auto;
+  padding: $half-spacing-unit;
+}
+
+.table-header {
+  display: flex;
+  width: 100%;
+  background: $color-header;
+  padding: ($half-spacing-unit * 1.5) 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.header__item {
+  flex: 1 1 20%;
+  text-align: center;
+  text-transform: uppercase;
+  color: $color-text-header;
+}
+
+.table-row {
+  display: flex;
+  width: 100%;
+  padding: ($half-spacing-unit * 1.5) 0;
+
+  &:nth-of-type(odd) {
+    background: $color-form-highlight;
+  }
+
+  &:nth-of-type(even) {
+    background: white;
+  }
+}
+
+.table-data {
+  flex: 1 1 20%;
+  text-align: center;
+  color: $color-text;
+}
