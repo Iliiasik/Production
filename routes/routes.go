@@ -57,6 +57,9 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("/budget", controllers.BudgetList)
 	r.GET("/budget/get", controllers.GetBudget)
 
+	// Production
+	r.GET("/production", controllers.ListProductProduction)
+
 	// WebSocket
 	r.GET("/ws", gin.WrapF(ws.HandleWebSocket))
 }

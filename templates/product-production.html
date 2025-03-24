@@ -13,7 +13,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/assets/js/elements/navbar.js"></script>
-    <script src="assets/js/templates/finished-goods.js"></script>
+    <script src="assets/js/templates/product-production.js"></script>
 
 </head>
 <body>
@@ -37,7 +37,7 @@
                         <li><a href="/finished-goods">Продукция</a></li>
                         <li><a href="/ingredients">Список ингредиентов</a></li>
                         <li><a href="/raw-material-purchases">Закупка сырья</a></li>
-                        <li><a href="/">Производство продукции</a></li>
+                        <li><a href="/production">Производство продукции</a></li>
                     </ul>
                 </li>
                 <li><a href="/budget">Бюджет</a></li>
@@ -49,7 +49,7 @@
     <main>
         <div class="content">
             <div class="header-container">
-                <h1>Список продукции</h1>
+                <h1>Производимая продукции</h1>
                 <button type="button" class="button" id="addBtn">
                     <span class="button__text">Добавить</span>
                     <span class="button__icon">
@@ -63,20 +63,20 @@
 
             <div class="table">
                 <div class="table-header">
-                    <div class="header__item">Название</div>
-                    <div class="header__item">Ед. измерения</div>
+                    <div class="header__item">Продукция</div>
                     <div class="header__item">Количество</div>
-                    <div class="header__item">Общая сумма</div>
+                    <div class="header__item">Дата производства</div>
+                    <div class="header__item">Сотрудник</div>
                     <div class="header__item">Действия</div>
                 </div>
 
                 <div class="table-body">
-                    {{range .finishedGoods}}
+                    {{range .productProductions}}
                     <div class="table-row">
-                        <div class="table-data">{{.Name}}</div>
-                        <div class="table-data">{{.Unit}}</div>
+                        <div class="table-data">{{.Product}}</div>
                         <div class="table-data">{{.Quantity}}</div>
-                        <div class="table-data">{{.TotalAmount}}</div>
+                        <div class="table-data">{{.ProductionDate.Format "02.01.2006"}}</div>
+                        <div class="table-data">{{.Employee}}</div>
                         <div class="table-data action-buttons">
                             <a href="#" class="action-text edit-btn" data-id="{{.ID}}">
                                 <span>Редактировать</span>

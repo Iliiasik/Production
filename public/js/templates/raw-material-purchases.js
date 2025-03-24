@@ -69,8 +69,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                let rawMaterialsOptions = data.raw_materials.map(
-                    rm => `<option value="${rm.id}">${rm.name}</option>`
+                let rawMaterials = data.raw_materials; // Сохраняем список для быстрого доступа
+                let rawMaterialsOptions = rawMaterials.map(
+                    rm => `<option value="${rm.id}" data-quantity="${rm.quantity}" data-total="${rm.total_amount}">${rm.name}</option>`
                 ).join("");
 
                 fetch("/employees/list")
@@ -90,65 +91,75 @@ document.addEventListener("DOMContentLoaded", function () {
                                     title: "Закупка сырья",
                                     width: "600px",
                                     html: `
-                                    <style>
-                                        /* Общий стиль для всех полей ввода */
-                                        .input-field {
-                                            width: 100%;
-                                            box-sizing: border-box;
-                                            padding: 8px;
-                                            border: 1px solid #ccc;
-                                            border-radius: 4px;
-                                            font-size: 14px;
-                                        }
-                                        /* Стиль для контейнеров полей */
-                                        .form-group {
-                                            margin-bottom: 16px;
-                                        }
-                                        /* Стиль для блока бюджета */
-                                        .budget-box {
-                                            background-color: #f2f2f2;
-                                            padding: 12px;
-                                            margin-bottom: 20px;
-                                            border-radius: 8px;
-                                            font-size: 16px;
-                                            font-weight: bold;
-                                        }
-                                        /* Стиль для заголовков */
-                                        .form-group label {
-                                            font-weight: bold;
-                                            margin-bottom: 1%;
-                                        }
-                                    </style>
-                                    <div class="budget-box">Текущий бюджет: ${budgetAmount}</div>
-                                    <div class="form-group">
-                                        <label>Сырье:</label>
-                                        <select id="rawMaterialSelect" class="input-field">${rawMaterialsOptions}</select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Количество:</label>
-                                        <input type="number" id="quantity" class="input-field" placeholder="Введите количество">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Сумма:</label>
-                                        <input type="number" id="totalAmount" class="input-field" placeholder="Введите сумму">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Дата закупки:</label>
-                                        <input type="date" id="purchaseDate" class="input-field" value="${today}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Сотрудник:</label>
-                                        <select id="employeeSelect" class="input-field">${employeesOptions}</select>
-                                    </div>
+                                <style>
+                                    .input-field {
+                                        width: 100%;
+                                        box-sizing: border-box;
+                                        padding: 8px;
+                                        border: 1px solid #ccc;
+                                        border-radius: 4px;
+                                        font-size: 14px;
+                                    }
+                                    .form-group {
+                                        margin-bottom: 16px;
+                                    }
+                                    .budget-box, .info-box {
+                                        background-color: #f2f2f2;
+                                        padding: 12px;
+                                        margin-bottom: 10px;
+                                        border-radius: 8px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                    }
+                                    
+                                    .form-group label {
+                                        font-weight: bold;
+                                        margin-bottom: 1%;
+                                    }
+                                </style>
+                                <div class="budget-box">Текущий бюджет: ${budgetAmount}</div>
+                                <div class="form-group">
+                                    <label>Сырье:</label>
+                                    <select id="rawMaterialSelect" class="input-field">${rawMaterialsOptions}</select>
+                                </div>
+                                <div class="info-box" id="materialInfo">
+                                    <div>Текущее количество: <span id="currentQuantity">-</span></div>
+                                    <div>Текущая сумма: <span id="currentTotal">-</span></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Количество:</label>
+                                    <input type="number" id="quantity" class="input-field" placeholder="Введите количество">
+                                </div>
+                                <div class="form-group">
+                                    <label>Сумма:</label>
+                                    <input type="number" id="totalAmount" class="input-field" placeholder="Введите сумму">
+                                </div>
+                                <div class="form-group">
+                                    <label>Дата закупки:</label>
+                                    <input type="date" id="purchaseDate" class="input-field" value="${today}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Сотрудник:</label>
+                                    <select id="employeeSelect" class="input-field">${employeesOptions}</select>
+                                </div>
                                 `,
                                     showCancelButton: true,
                                     confirmButtonText: "Закупить",
                                     cancelButtonText: "Отмена",
                                     focusConfirm: false,
-                                    customClass: {
-                                        popup: 'popup-class',
-                                        confirmButton: 'custom-button',
-                                        cancelButton: 'custom-button'
+                                    didOpen: () => {
+                                        // При открытии окна добавляем обработчик выбора сырья
+                                        document.getElementById("rawMaterialSelect").addEventListener("change", function () {
+                                            let selectedOption = this.options[this.selectedIndex];
+                                            let quantity = selectedOption.getAttribute("data-quantity") || 0;
+                                            let total = selectedOption.getAttribute("data-total") || 0;
+
+                                            document.getElementById("currentQuantity").innerText = quantity;
+                                            document.getElementById("currentTotal").innerText = total;
+                                        });
+
+                                        // Вызываем событие вручную, чтобы данные сразу загрузились
+                                        document.getElementById("rawMaterialSelect").dispatchEvent(new Event("change"));
                                     },
                                     preConfirm: () => {
                                         const rawMaterialID = parseInt(document.getElementById("rawMaterialSelect").value, 10);
@@ -170,7 +181,12 @@ document.addEventListener("DOMContentLoaded", function () {
                                         }
 
                                         return { raw_material_id: rawMaterialID, quantity, total_amount: totalAmount, purchase_date: purchaseDate, employee_id: employeeID };
-                                    }
+                                    },
+                                    customClass: {
+                                        popup: 'popup-class',
+                                        confirmButton: 'custom-button',
+                                        cancelButton: 'custom-button'
+                                    },
                                 }).then(result => {
                                     if (result.isConfirmed) {
                                         fetch("/purchases/add", {

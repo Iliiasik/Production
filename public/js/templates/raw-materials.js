@@ -129,7 +129,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                             <!-- Первая строка: Заголовки столбцов -->
                                             <tr style="background-color: #f4f4f4; text-align: left;">
                                                 <th class="table-cell">Название</th>
-                                                <th class="table-cell">Единица измерения</th>                                       
+                                                <th class="table-cell">Единица измерения</th>
+                                                                                                <th class="table-cell">Количество</th>                                       
+                                                <th class="table-cell">Сумма</th>                                       
+                                       
                                             </tr>
                                             <!-- Вторая строка: Поля ввода -->
                                             <tr>
@@ -142,7 +145,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                                         ${unitOptions}
                                                     </select>
                                                 </td>
-       
+                                                <td class="table-cell">
+                                                <input type="number" id="quantity" class="input-field" 
+                                                        value="${rawMaterial.quantity}" step="0.01">
+                                                </td>
+                                                <td class="table-cell">
+                                                    <input type="number" id="totalAmount" class="input-field" 
+                                                        value="${rawMaterial.total_amount}" step="0.01">
+                                                </td>
                                             </tr>
                                         </table>
                                     </form>
@@ -153,10 +163,12 @@ document.addEventListener("DOMContentLoaded", function () {
                                     preConfirm: () => {
                                         const name = document.getElementById('materialName').value;
                                         const unitId = document.getElementById('unitId').value;
+                                        const quantity = document.getElementById('quantity').value;
+                                        const totalAmount = document.getElementById('totalAmount').value;
 
-                                        console.log('Form data to save:', { name, unitId});
+                                        console.log('Form data to save:', { name, unitId, quantity, totalAmount });
 
-                                        if (!name || !unitId ) {
+                                        if (!name || !unitId || !quantity || !totalAmount) {
                                             Swal.showValidationMessage('Заполните все поля');
                                             return false;
                                         }
@@ -169,6 +181,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                             body: JSON.stringify({
                                                 name,
                                                 unit_id: parseInt(unitId),
+                                                quantity: parseFloat(quantity),
+                                                total_amount: parseFloat(totalAmount)
 
                                             })
                                         })

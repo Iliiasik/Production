@@ -72,17 +72,52 @@ func ListRawMaterialPurchases(c *gin.Context) {
 
 func DeletePurchase(c *gin.Context) {
 	id := c.Param("id")
-	// Логируем ID
-	log.Printf("Deleting raw material with ID: %s", id)
+	log.Printf("Deleting purchase with ID: %s", id)
 
-	// Удаляем запись
-	if err := database.DB.Delete(&models.RawMaterialPurchase{}, id).Error; err != nil {
-		log.Printf("Ошибка при удалении записи с ID %s: %v", id, err)
+	// Находим запись закупки перед удалением
+	var purchase models.RawMaterialPurchase
+	if err := database.DB.First(&purchase, id).Error; err != nil {
+		log.Printf("Ошибка при получении закупки с ID %s: %v", id, err)
+		c.JSON(404, gin.H{"error": "Закупка не найдена"})
+		return
+	}
+
+	// Находим соответствующее сырье
+	var rawMaterial models.RawMaterial
+	if err := database.DB.First(&rawMaterial, purchase.RawMaterialID).Error; err != nil {
+		log.Printf("Ошибка при получении сырья с ID %d: %v", purchase.RawMaterialID, err)
+		c.JSON(500, gin.H{"error": "Ошибка сервера"})
+		return
+	}
+
+	// Восстанавливаем количество и сумму сырья
+	rawMaterial.Quantity -= purchase.Quantity
+	rawMaterial.TotalAmount -= purchase.TotalAmount
+	if rawMaterial.Quantity < 0 || rawMaterial.TotalAmount < 0 {
+		log.Println("Ошибка: количество или сумма сырья ушли в отрицательное значение")
+		c.JSON(500, gin.H{"error": "Ошибка при восстановлении данных"})
+		return
+	}
+	database.DB.Save(&rawMaterial)
+
+	// Восстанавливаем бюджет
+	var budget models.Budget
+	if err := database.DB.First(&budget).Error; err != nil {
+		log.Println("Ошибка получения бюджета:", err)
+		c.JSON(500, gin.H{"error": "Ошибка сервера"})
+		return
+	}
+	budget.TotalAmount += purchase.TotalAmount
+	database.DB.Save(&budget)
+
+	// Удаляем запись о закупке
+	if err := database.DB.Delete(&purchase).Error; err != nil {
+		log.Printf("Ошибка при удалении закупки с ID %s: %v", id, err)
 		c.JSON(500, gin.H{"error": "Не удалось удалить запись"})
 		return
 	}
-	// Логируем успешное удаление
-	log.Printf("Raw material with ID %s deleted successfully", id)
+
+	log.Printf("Purchase with ID %s deleted successfully", id)
 	c.JSON(200, gin.H{"success": true})
 }
 
@@ -140,7 +175,6 @@ func AddPurchase(c *gin.Context) {
 	database.DB.Save(&rawMaterial)
 
 	// Устанавливаем дату покупки (текущая) и сохраняем
-	purchase.PurchaseDate = time.Now()
 	database.DB.Create(&purchase)
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Закупка успешно добавлена"})

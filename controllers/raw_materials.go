@@ -123,13 +123,25 @@ func UpdateRawMaterial(c *gin.Context) {
 	var existingRawMaterial models.RawMaterial
 	if err := database.DB.First(&existingRawMaterial, id).Error; err != nil {
 		log.Printf("Ошибка при получении сырья с ID %s: %v", id, err)
-		c.JSON(500, gin.H{"error": "Не удалось найти запись для обновления"})
+		c.JSON(404, gin.H{"error": "Не удалось найти запись для обновления"})
 		return
 	}
 
-	// Обновляем поля записи
-	if err := database.DB.Model(&existingRawMaterial).Updates(rawmaterial).Error; err != nil {
-		log.Printf("Ошибка при обновлении единицы измерения с ID %s: %v", id, err)
+	// Логируем полученные данные
+	log.Printf("Updating raw material ID=%s: Name=%s, UnitID=%d, Quantity=%f, TotalAmount=%f",
+		id, rawmaterial.Name, rawmaterial.UnitID, rawmaterial.Quantity, rawmaterial.TotalAmount)
+
+	// Создаем мапу с обновляемыми значениями
+	updateData := map[string]interface{}{
+		"name":         rawmaterial.Name,
+		"unit_id":      rawmaterial.UnitID,
+		"quantity":     rawmaterial.Quantity,
+		"total_amount": rawmaterial.TotalAmount,
+	}
+
+	// Выполняем обновление через мапу
+	if err := database.DB.Model(&existingRawMaterial).Updates(updateData).Error; err != nil {
+		log.Printf("Ошибка при обновлении сырья с ID %s: %v", id, err)
 		c.JSON(500, gin.H{"error": "Не удалось обновить запись"})
 		return
 	}
