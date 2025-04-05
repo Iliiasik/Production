@@ -100,27 +100,42 @@ func UpdateFinishedGood(c *gin.Context) {
 	id := c.Param("id")
 	var finishedGood models.FinishedGood
 
+	// Получаем данные из тела запроса
 	if err := c.ShouldBindJSON(&finishedGood); err != nil {
 		c.JSON(400, gin.H{"error": "Некорректные данные"})
 		return
 	}
 
+	// Ищем запись по ID
 	var existingFinishedGood models.FinishedGood
 	if err := database.DB.First(&existingFinishedGood, id).Error; err != nil {
 		log.Printf("Ошибка при получении готовой продукции с ID %s: %v", id, err)
-		c.JSON(500, gin.H{"error": "Не удалось найти запись для обновления"})
+		c.JSON(404, gin.H{"error": "Не удалось найти запись для обновления"})
 		return
 	}
 
-	if err := database.DB.Model(&existingFinishedGood).Updates(finishedGood).Error; err != nil {
-		log.Printf("Ошибка при обновлении записи с ID %s: %v", id, err)
+	// Логируем полученные данные
+	log.Printf("Updating finished good ID=%s: Name=%s, UnitID=%d, Quantity=%f, TotalAmount=%f",
+		id, finishedGood.Name, finishedGood.UnitID, finishedGood.Quantity, finishedGood.TotalAmount)
+
+	// Создаем мапу с обновляемыми значениями
+	updateData := map[string]interface{}{
+		"name":         finishedGood.Name,
+		"unit_id":      finishedGood.UnitID,
+		"quantity":     finishedGood.Quantity,
+		"total_amount": finishedGood.TotalAmount,
+	}
+
+	// Выполняем обновление через мапу
+	if err := database.DB.Model(&existingFinishedGood).Updates(updateData).Error; err != nil {
+		log.Printf("Ошибка при обновлении готовой продукции с ID %s: %v", id, err)
 		c.JSON(500, gin.H{"error": "Не удалось обновить запись"})
 		return
 	}
 
+	// Возвращаем успешный ответ
 	c.JSON(200, gin.H{"success": true})
 }
-
 func GetFinishedGoodsList(c *gin.Context) {
 	var finishedgoods []models.FinishedGood
 	if err := database.DB.Find(&finishedgoods).Error; err != nil {

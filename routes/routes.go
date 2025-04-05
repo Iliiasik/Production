@@ -44,6 +44,7 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("/ingredients/get/:id", controllers.GetIngredient)
 	r.GET("/ingredients/:product_id", controllers.GetIngredientsByProduct)
 	r.GET("/ingredients/used-raw-materials/:product_id", controllers.GetUsedRawMaterialsByProduct)
+	r.GET("/ingredients/list", controllers.GetIngredientsList)
 
 	// Purchases - table
 	r.GET("/raw-material-purchases", controllers.ListRawMaterialPurchases)
@@ -59,6 +60,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// Production
 	r.GET("/production", controllers.ListProductProduction)
+	r.POST("/production/produce/:product_id", controllers.ProduceProduct)
 
 	// WebSocket
 	r.GET("/ws", gin.WrapF(ws.HandleWebSocket))

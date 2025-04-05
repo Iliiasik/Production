@@ -28,7 +28,6 @@
                 <a id="nav-toggle" href="/"><span></span></a>
             </div>
             <ul class="nav-list">
-                <li><a href="/">Главная</a></li>
                 <li>
                     <a href="#!">Формы</a>
                     <ul class="nav-dropdown">
@@ -38,9 +37,10 @@
                         <li><a href="/ingredients">Список ингредиентов</a></li>
                         <li><a href="/raw-material-purchases">Закупка сырья</a></li>
                         <li><a href="/production">Производство продукции</a></li>
+                        <li><a href="/sale">Продажа продукции</a></li>
+                        <li><a href="/budget">Бюджет</a></li>
                     </ul>
                 </li>
-                <li><a href="/budget">Бюджет</a></li>
             </ul>
         </nav>
     </div>
@@ -49,9 +49,9 @@
     <main>
         <div class="content">
             <div class="header-container">
-                <h1>Производимая продукции</h1>
+                <h1>Производимая продукция</h1>
                 <button type="button" class="button" id="addBtn">
-                    <span class="button__text">Добавить</span>
+                    <span class="button__text">Изготовить</span>
                     <span class="button__icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
                     <line y2="19" y1="5" x2="12" x1="12"></line>
@@ -67,7 +67,6 @@
                     <div class="header__item">Количество</div>
                     <div class="header__item">Дата производства</div>
                     <div class="header__item">Сотрудник</div>
-                    <div class="header__item">Действия</div>
                 </div>
 
                 <div class="table-body">
@@ -77,17 +76,6 @@
                         <div class="table-data">{{.Quantity}}</div>
                         <div class="table-data">{{.ProductionDate.Format "02.01.2006"}}</div>
                         <div class="table-data">{{.Employee}}</div>
-                        <div class="table-data action-buttons">
-                            <a href="#" class="action-text edit-btn" data-id="{{.ID}}">
-                                <span>Редактировать</span>
-                                <img src="assets/images/actions/edit.svg" alt="Edit">
-                            </a>
-                            <a href="#" class="action-text delete-btn" data-id="{{.ID}}">
-                                <span>Удалить</span>
-                                <img src="assets/images/actions/delete.svg" alt="Delete">
-                            </a>
-                        </div>
-
                     </div>
                     {{else}}
                     <div class="table-row">

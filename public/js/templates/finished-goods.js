@@ -66,157 +66,148 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function (e) {
             e.preventDefault();
             let finishedGoodsId = this.getAttribute("data-id");
-            console.log(`Edit button clicked for finishedGoods: ${finishedGoodsId}`);
 
             // Загружаем данные о продукции
-            console.log(`Fetching data for finished good with ID: ${finishedGoodsId}`);
             fetch(`/finished-goods/get/${finishedGoodsId}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Finished good data received:', data);
+                    if (!data.success || !data.finishedGood) {
+                        Swal.fire("Ошибка!", "Не удалось загрузить данные для редактирования.", "error");
+                        return;
+                    }
 
-                    // Обновляем ключи для правильного доступа к данным
-                    if (data.success && data.finishedGood) {
-                        const FinishedGoods = data.finishedGood;
-                        console.log('Finished good:', FinishedGoods);
+                    const finishedGood = data.finishedGood;
 
-                        // Проверка на существование unit_id
-                        console.log('Finished good unit_id:', FinishedGoods.unit_id);
+                    // Загружаем доступные единицы измерения для выпадающего списка
+                    fetch("/units/list")
+                        .then(response => response.json())
+                        .then(unitsData => {
+                            if (!unitsData.success) {
+                                Swal.fire("Ошибка!", "Не удалось загрузить список единиц измерения.", "error");
+                                return;
+                            }
 
-                        // Загружаем доступные единицы измерения для выпадающего списка
-                        console.log('Fetching units list...');
-                        fetch("/units/list")
-                            .then(response => response.json())
-                            .then(unitsData => {
-                                console.log('Units data received:', unitsData);
+                            // Создаем выпадающий список единиц измерения
+                            let unitOptions = unitsData.units.map(unit => {
+                                const selected = unit.id === finishedGood.unit_id ? 'selected' : '';
+                                return `<option value="${unit.id}" ${selected}>${unit.name}</option>`;
+                            }).join("");
 
-                                if (!unitsData.success) {
-                                    Swal.fire("Ошибка!", "Не удалось загрузить список единиц измерения.", "error");
-                                    return;
-                                }
-
-                                // Создаем выпадающий список
-                                let unitOptions = unitsData.units.map(unit => {
-                                    const selected = unit.id === FinishedGoods.unit_id ? 'selected' : '';
-                                    console.log(`Creating option for unit: ${unit.name}, selected: ${selected}`);
-                                    return `<option value="${unit.id}" ${selected}>${unit.name}</option>`;
-                                }).join("");
-                                console.log('Unit options generated:', unitOptions);
-
-                                // Открываем модальное окно с данными для редактирования
-                                Swal.fire({
-                                    title: 'Редактировать запись',
-                                    html: `
-                                    <style>
-                                        /* Общий стиль для всех полей ввода */
-                                        .input-field {
-                                            width: 100%;
-                                            box-sizing: border-box;
-                                            padding: 8px;
-                                            border: 1px solid #ccc;
-                                            border-radius: 4px;
-                                            font-size: 14px;
-                                            margin: 0;
-                                        }
-                                        /* Стиль для ячеек таблицы */
-                                        .table-cell {
-                                            padding: 10px;
-                                            border: 1px solid #ddd;
-                                        }
-                                    </style>
-                                    <form id="editForm">
-                                        <table style="width:100%; border-collapse: collapse; table-layout: fixed;">
-                                            <!-- Первая строка: Заголовки столбцов -->
-                                            <tr style="background-color: #f4f4f4; text-align: left;">
-                                                <th class="table-cell">Название</th>
-                                                <th class="table-cell">Единица измерения</th>                                          
-                                            </tr>
-                                            <!-- Вторая строка: Поля ввода -->
-                                            <tr>
-                                                <td class="table-cell">
-                                                    <input type="text" id="finishedGoodsName" class="input-field" 
-                                                        value="${FinishedGoods.name}" placeholder="Введите название">
-                                                </td>
-                                                <td class="table-cell">
-                                                    <select id="unitId" class="input-field">
-                                                        ${unitOptions}
-                                                    </select>
-                                                </td>                                           
-                                            </tr>
-                                        </table>
-                                    </form>
-                                `,
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Сохранить изменения',
-                                    cancelButtonText: 'Отмена',
-                                    preConfirm: () => {
-                                        const name = document.getElementById('finishedGoodsName').value;
-                                        const unitId = document.getElementById('unitId').value;
-
-
-                                        console.log('Form data to save:', { name, unitId});
-
-                                        if (!name || !unitId ) {
-                                            Swal.showValidationMessage('Заполните все поля');
-                                            return false;
-                                        }
-
-                                        return fetch(`/finished-goods/edit/${finishedGoodsId}`, {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json'
-                                            },
-                                            body: JSON.stringify({
-                                                name,
-                                                unit_id: parseInt(unitId),
-                                            })
-                                        })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                console.log('Save result:', data);
-
-                                                if (data.success) {
-                                                    return data;
-                                                } else {
-                                                    Swal.showValidationMessage(data.error || 'Не удалось сохранить изменения');
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.error('Error during save:', error);
-                                                Swal.showValidationMessage('Ошибка при сохранении');
-                                            });
-                                    },
-                                    focusConfirm: false,
-                                    customClass: {
-                                        popup: 'popup-class', // Класс для модального окна
-                                        confirmButton: 'custom-button', // Класс для кнопки подтверждения
-                                        cancelButton: 'custom-button' // Класс для кнопки отмены
-                                    },
-                                    width: '900px', // Увеличена ширина модального окна
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        location.reload();
+                            // Открываем модальное окно с данными для редактирования
+                            Swal.fire({
+                                title: 'Редактировать запись',
+                                html: `
+                                <style>
+                                    /* Общий стиль для всех полей ввода */
+                                    .input-field {
+                                        width: 100%;
+                                        box-sizing: border-box;
+                                        padding: 8px;
+                                        border: 1px solid #ccc;
+                                        border-radius: 4px;
+                                        font-size: 14px;
                                     }
-                                });
+                                    /* Стиль для ячеек таблицы */
+                                    .table-cell {
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                    }
+                                </style>
+                                <form id="editForm">
+                                    <table style="width:100%; border-collapse: collapse; table-layout: fixed;">
+                                        <!-- Первая строка: Заголовки столбцов -->
+                                        <tr style="background-color: #f4f4f4; text-align: left;">
+                                            <th class="table-cell">Название</th>
+                                            <th class="table-cell">Единица измерения</th>
+                                            <th class="table-cell">Количество</th>
+                                            <th class="table-cell">Сумма</th>
+                                        </tr>
+                                        <!-- Вторая строка: Поля ввода -->
+                                        <tr>
+                                            <td class="table-cell">
+                                                <input type="text" id="finishedGoodsName" class="input-field" 
+                                                    value="${finishedGood.name}" placeholder="Введите название">
+                                            </td>
+                                            <td class="table-cell">
+                                                <select id="unitId" class="input-field">
+                                                    ${unitOptions}
+                                                </select>
+                                            </td>
+                                            <td class="table-cell">
+                                                <input type="number" id="quantity" class="input-field" 
+                                                    value="${finishedGood.quantity}" step="0.01" placeholder="Введите количество">
+                                            </td>
+                                            <td class="table-cell">
+                                                <input type="number" id="totalAmount" class="input-field" 
+                                                    value="${finishedGood.total_amount}" step="0.01" placeholder="Введите сумму">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            `,
+                                showCancelButton: true,
+                                confirmButtonText: 'Сохранить изменения',
+                                cancelButtonText: 'Отмена',
+                                preConfirm: () => {
+                                    const name = document.getElementById('finishedGoodsName').value.trim();
+                                    const unitId = document.getElementById('unitId').value;
+                                    const quantity = parseFloat(document.getElementById('quantity').value);
+                                    const totalAmount = parseFloat(document.getElementById('totalAmount').value);
 
-                            }).catch(error => {
-                            console.error('Error fetching units data:', error);
+                                    // Проверяем, что все поля заполнены
+                                    if (!name || !unitId || isNaN(quantity) || isNaN(totalAmount)) {
+                                        Swal.showValidationMessage('Заполните все поля');
+                                        return false;
+                                    }
+
+                                    // Отправляем данные на сервер
+                                    return fetch(`/finished-goods/edit/${finishedGoodsId}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            name,
+                                            unit_id: parseInt(unitId),
+                                            quantity,
+                                            total_amount: totalAmount,
+                                        })
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                return data;
+                                            } else {
+                                                Swal.showValidationMessage(data.error || 'Не удалось сохранить изменения');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Ошибка при сохранении:', error);
+                                            Swal.showValidationMessage('Ошибка при сохранении');
+                                        });
+                                },
+                                focusConfirm: false,
+                                customClass: {
+                                    popup: 'popup-class',
+                                    confirmButton: 'custom-button',
+                                    cancelButton: 'custom-button'
+                                },
+                                width: '900px',
+                            }).then(result => {
+                                if (result.isConfirmed) {
+                                    location.reload(); // Обновляем страницу после успешного сохранения
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при загрузке единиц измерения:', error);
                             Swal.fire("Ошибка!", "Не удалось загрузить список единиц измерения.", "error");
                         });
-
-                    } else {
-                        console.error('Error loading finished good data:', data);
-                        Swal.fire("Ошибка!", "Не удалось загрузить данные для редактирования.", "error");
-                    }
                 })
                 .catch(error => {
-                    console.error('Error fetching finished good data:', error);
+                    console.error('Ошибка при загрузке данных о продукции:', error);
                     Swal.fire("Ошибка!", "Произошла ошибка при загрузке данных.", "error");
                 });
-
         });
     });
-
     // ДОБАВЛЕНИЕ
 
     document.getElementById('addBtn').addEventListener('click', function () {
