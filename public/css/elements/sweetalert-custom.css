@@ -1,0 +1,87 @@
+/* Данный CSS-файл устанавливает кастомизированные стили для SweetAlert2 */
+.swal2-popup {
+    width: 500px;
+    padding: 20px;
+    font-size: 16px;
+}
+
+.swal2-input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    width: 100%;
+}
+
+.popup-class {
+    font-size: 16px;
+}
+
+.custom-button {
+    font-family: 'TildaSans', sans-serif !important;
+    font-size: 16px !important;
+}
+
+.input-field {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.table-cell {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+tr {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.budget-box, .info-box {
+    background-color: #f2f2f2;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.required-materials {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 2%;
+}
+.required-materials li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: left;
+}
