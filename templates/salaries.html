@@ -9,13 +9,15 @@
     <link rel="stylesheet" href="/assets/css/elements/footer.css">
     <link rel="stylesheet" href="/assets/css/elements/table.css">
     <link rel="stylesheet" href="/assets/css/elements/scrollbar.css">
+    <link rel="stylesheet" href="/assets/css/elements/select_box.css">
+    <link rel="stylesheet" href="/assets/css/elements/generate-btn.css">
     <link rel="stylesheet" href="/assets/css/elements/buttons.css">
     <link rel="stylesheet" href="/assets/css/elements/sweetalert-custom.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/assets/js/elements/navbar.js"></script>
     <script src="assets/js/templates/general.js" defer></script>
-    <script src="assets/js/templates/finished-goods.js" defer></script>
+    <script src="/assets/js/templates/salaries.js" defer></script>
 
 </head>
 <body>
@@ -52,56 +54,77 @@
 <div class="wrapper">
     <main>
         <div class="content">
+            <div class="header-t">
+            <h1>Зарплатная ведомость</h1>
+            </div>
             <div class="header-container">
-                <h1>Список продукции</h1>
-                <button type="button" class="button" id="addBtn">
-                    <span class="button__text">Добавить</span>
-                    <span class="button__icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
-                    <line y2="19" y1="5" x2="12" x1="12"></line>
-                    <line y2="12" y1="12" x2="19" x1="5"></line>
-                </svg>
-            </span>
-                </button>
+                <div class="select">
+                    <select id="yearSelect">
+                        <option value="" disabled selected>Выберите год</option>
+                        {{range .years}}
+                        <option value="{{.}}">{{.}}</option>
+                        {{end}}
+                    </select>
+                    </div>
+                <div class="select">
+                <select id="monthSelect">
+                        <option value="" disabled selected>Выберите месяц</option>
+                        {{range .months}}
+                        <option value="{{.Value}}">{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- Кнопка "Отобразить" -->
+                    <button class="generate-button" id="showBtn">Отобразить</button>
+
+                    <!-- Кнопка "Рассчитать" с иконкой -->
+                    <button class="generate-button" id="calculateBtn">
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                class="bi bi-arrow-repeat"
+                                viewBox="0 0 16 16"
+                        >
+                            <path
+                                    d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"
+                            ></path>
+                            <path
+                                    fill-rule="evenodd"
+                                    d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"
+                            ></path>
+                        </svg>
+                        Рассчитать
+                    </button>
+                <button class="generate-button" id="payBtn">Выдать</button>
+
+                </div>
             </div>
 
-            <div class="table">
+            <div class="table" style="margin-top: 20px;">
                 <div class="table-header">
-                    <div class="header__item">Название</div>
-                    <div class="header__item">Ед. измерения</div>
-                    <div class="header__item">Количество</div>
-                    <div class="header__item">Общая сумма</div>
-                    <div class="header__item">Действия</div>
+                    <div class="header__item">Сотрудник</div>
+                    <div class="header__item">Закупки</div>
+                    <div class="header__item">Производство</div>
+                    <div class="header__item">Продажи</div>
+                    <div class="header__item">Итого</div>
+                    <div class="header__item">Бонус</div>
+                    <div class="header__item">Зарплата</div>
+                    <div class="header__item">Выплачено</div>
                 </div>
 
-                <div class="table-body">
-                    {{range .finishedGoods}}
+                <div class="table-body" id="salaryTableBody">
                     <div class="table-row">
-                        <div class="table-data">{{.Name}}</div>
-                        <div class="table-data">{{.Unit}}</div>
-                        <div class="table-data">{{.Quantity}}</div>
-                        <div class="table-data">{{.TotalAmount}}</div>
-                        <div class="table-data action-buttons">
-                            <a href="#" class="action-text edit-btn" data-id="{{.ID}}">
-                                <span>Редактировать</span>
-                                <img src="assets/images/actions/edit.svg" alt="Edit">
-                            </a>
-                            <a href="#" class="action-text delete-btn" data-id="{{.ID}}">
-                                <span>Удалить</span>
-                                <img src="assets/images/actions/delete.svg" alt="Delete">
-                            </a>
-                        </div>
-
+                        <div class="table-data" colspan="7">Выберите дату для отображения данных.</div>
                     </div>
-                    {{else}}
-                    <div class="table-row">
-                        <div class="table-data" colspan="3">Данные не найдены.</div>
-                    </div>
-                    {{end}}
                 </div>
             </div>
-        </div>
     </main>
+</div>
+
+
     <footer class="site-footer">
         <div class="footer-links-container">
             <div class="footer-links">

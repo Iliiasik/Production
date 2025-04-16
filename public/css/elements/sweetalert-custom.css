@@ -85,3 +85,24 @@ tr {
     font-weight: 500;
     text-align: left;
 }
+
+.status-icon {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: default;
+    transition: transform 0.2s ease;
+}
+
+.status-icon:hover, .edit-icon:hover {
+    transform: scale(1.15);
+}
+
+.edit-icon {
+    height: 22px;
+    margin-left: 0.3em;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+

@@ -1,0 +1,60 @@
+// Переменные для стилизации кнопки
+$gen-btn-text-color: white;
+$gen-btn-bg-color: var(--darkgray);
+$gen-btn-bg-hover: #183354;
+$gen-btn-radius: 0.5rem;
+$gen-btn-font-weight: 500;
+$gen-btn-font-size: 18px;
+$gen-btn-line-height: 2.5em;
+$gen-btn-padding-x: 1em;
+$gen-btn-padding-y: 0;
+$gen-btn-margin-right: 0.5rem;
+$gen-btn-icon-size: 1.3rem;
+$gen-btn-icon-margin-right: 0.75rem;
+$gen-btn-font-family: "TildaSans", sans-serif;
+
+.generate-button {
+  color: $gen-btn-text-color;
+  background-color: $gen-btn-bg-color;
+  font-family: $gen-btn-font-family;
+  font-weight: $gen-btn-font-weight;
+  border-radius: $gen-btn-radius;
+  font-size: $gen-btn-font-size;
+  line-height: $gen-btn-line-height;
+  padding: $gen-btn-padding-y $gen-btn-padding-x;
+  cursor: pointer;
+  text-align: center;
+  margin-right: $gen-btn-margin-right;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+
+  &:hover {
+    background-color: $gen-btn-bg-hover;
+  }
+
+  svg {
+    display: inline;
+    width: $gen-btn-icon-size;
+    height: $gen-btn-icon-size;
+    margin-right: $gen-btn-icon-margin-right;
+    color: $gen-btn-text-color;
+  }
+
+  &:focus svg {
+    animation: spin_357 0.5s linear;
+  }
+}
+
+.header-t {
+  text-align: center;
+}
+
+@keyframes spin_357 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,44 @@
+.generate-button {
+  color: white;
+  background-color: var(--darkgray);
+  font-family: "TildaSans", sans-serif;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  font-size: 18px;
+  line-height: 2.5em;
+  padding: 0 1em;
+  cursor: pointer;
+  text-align: center;
+  margin-right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+}
+.generate-button:hover {
+  background-color: #183354;
+}
+.generate-button svg {
+  display: inline;
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-right: 0.75rem;
+  color: white;
+}
+.generate-button:focus svg {
+  animation: spin_357 0.5s linear;
+}
+
+.header-t {
+  text-align: center;
+}
+
+@keyframes spin_357 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*# sourceMappingURL=generate-btn.css.map */

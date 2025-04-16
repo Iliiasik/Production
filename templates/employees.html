@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/assets/js/elements/navbar.js"></script>
     <script src="assets/js/templates/general.js" defer></script>
-    <script src="assets/js/templates/finished-goods.js" defer></script>
+    <script src="assets/js/templates/employees.js" defer></script>
 
 </head>
 <body>
@@ -53,7 +53,7 @@
     <main>
         <div class="content">
             <div class="header-container">
-                <h1>Список продукции</h1>
+                <h1>Список сотрудников</h1>
                 <button type="button" class="button" id="addBtn">
                     <span class="button__text">Добавить</span>
                     <span class="button__icon">
@@ -67,20 +67,22 @@
 
             <div class="table">
                 <div class="table-header">
-                    <div class="header__item">Название</div>
-                    <div class="header__item">Ед. измерения</div>
-                    <div class="header__item">Количество</div>
-                    <div class="header__item">Общая сумма</div>
+                    <div class="header__item">ФИО</div>
+                    <div class="header__item">Должность</div>
+                    <div class="header__item">Зарплата</div>
+                    <div class="header__item">Адрес</div>
+                    <div class="header__item">Номер телефона</div>
                     <div class="header__item">Действия</div>
                 </div>
 
                 <div class="table-body">
-                    {{range .finishedGoods}}
+                    {{range .employees}}
                     <div class="table-row">
-                        <div class="table-data">{{.Name}}</div>
-                        <div class="table-data">{{.Unit}}</div>
-                        <div class="table-data">{{.Quantity}}</div>
-                        <div class="table-data">{{.TotalAmount}}</div>
+                        <div class="table-data">{{.FullName}}</div>
+                        <div class="table-data">{{.Position}}</div>
+                        <div class="table-data">{{.Salary}}</div>
+                        <div class="table-data">{{.Address}}</div>
+                        <div class="table-data">{{.Phone}}</div>
                         <div class="table-data action-buttons">
                             <a href="#" class="action-text edit-btn" data-id="{{.ID}}">
                                 <span>Редактировать</span>

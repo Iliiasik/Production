@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/assets/js/elements/navbar.js"></script>
     <script src="assets/js/templates/general.js" defer></script>
-    <script src="assets/js/templates/finished-goods.js" defer></script>
+    <script src="assets/js/templates/positions.js" defer></script>
 
 </head>
 <body>
@@ -27,7 +27,7 @@
         </div>
         <nav>
             <div class="nav-mobile">
-                <a id="nav-toggle" href="/"><span></span></a>
+                <a id="nav-toggle" href="#!"><span></span></a>
             </div>
             <ul class="nav-list">
                 <li>
@@ -53,7 +53,7 @@
     <main>
         <div class="content">
             <div class="header-container">
-                <h1>Список продукции</h1>
+                <h1>Список должностей</h1>
                 <button type="button" class="button" id="addBtn">
                     <span class="button__text">Добавить</span>
                     <span class="button__icon">
@@ -68,19 +68,13 @@
             <div class="table">
                 <div class="table-header">
                     <div class="header__item">Название</div>
-                    <div class="header__item">Ед. измерения</div>
-                    <div class="header__item">Количество</div>
-                    <div class="header__item">Общая сумма</div>
                     <div class="header__item">Действия</div>
                 </div>
 
                 <div class="table-body">
-                    {{range .finishedGoods}}
+                    {{range .positions}}
                     <div class="table-row">
                         <div class="table-data">{{.Name}}</div>
-                        <div class="table-data">{{.Unit}}</div>
-                        <div class="table-data">{{.Quantity}}</div>
-                        <div class="table-data">{{.TotalAmount}}</div>
                         <div class="table-data action-buttons">
                             <a href="#" class="action-text edit-btn" data-id="{{.ID}}">
                                 <span>Редактировать</span>
@@ -112,7 +106,7 @@
                 <h6>Формы</h6>
                 <ul>
                     <li><a href="/raw-materials">Сырье</a></li>
-                    <li><a href="/finished-goods">Продукция</a></li>
+                    <li><a href="/">Продукция</a></li>
                     <li><a href="/units">Единицы измерения</a></li>
                 </ul>
             </div>

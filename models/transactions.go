@@ -18,7 +18,7 @@ type ProductSale struct {
 	ProductID   uint         `json:"product_id" gorm:"index;not null"`
 	Product     FinishedGood `json:"product" gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE"`
 	Quantity    float64      `json:"quantity" gorm:"not null"`
-	TotalAmount float64      `json:"total_amount" gorm:"not null"`
+	TotalAmount float64      `json:"total_amount" gorm:"not null;default:0"`
 	SaleDate    time.Time    `json:"sale_date" gorm:"not null"`
 	EmployeeID  uint         `json:"employee_id" gorm:"index;not null"`
 	Employee    Employee     `json:"employee" gorm:"foreignKey:EmployeeID;constraint:OnDelete:CASCADE"`

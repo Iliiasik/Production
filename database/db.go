@@ -59,6 +59,7 @@ func InitDB() {
 		&models.FinishedGood{},
 		&models.Position{},
 		&models.Employee{},
+		&models.SalaryRecord{},
 		&models.Ingredient{},
 		&models.Budget{},
 		&models.RawMaterialPurchase{},

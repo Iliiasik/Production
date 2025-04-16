@@ -52,15 +52,43 @@ func RegisterRoutes(r *gin.Engine) {
 	r.POST("/purchases/add", controllers.AddPurchase)
 
 	// Employees
+	r.GET("/employees", controllers.ListEmployees)
 	r.GET("/employees/list", controllers.GetEmployeesList)
+	r.GET("/positions/list", controllers.GetAllPositions)
+	r.GET("/employees/get/:id", controllers.GetEmployee)
+	r.POST("/employees/add", controllers.AddEmployee)
+	r.POST("/employees/edit/:id", controllers.UpdateEmployee)
+	r.DELETE("/employees/delete/:id", controllers.DeleteEmployee)
+
+	// Positions
+	r.POST("/positions/add", controllers.AddPosition)
+	r.POST("/positions/edit/:id", controllers.EditPosition)
+	r.DELETE("/positions/delete/:id", controllers.DeletePosition)
+	r.GET("/positions/get/:id", controllers.GetPosition)
+	r.GET("/positions", controllers.ListPositions)
 
 	// Budget
 	r.GET("/budget", controllers.BudgetList)
+	r.GET("/budget/get-row/:id", controllers.GetBudgetRow)
 	r.GET("/budget/get", controllers.GetBudget)
+	r.GET("/markup/get", controllers.GetMarkup)
+	r.PUT("/budget/update/:id", controllers.UpdateBudget)
 
 	// Production
 	r.GET("/production", controllers.ListProductProduction)
 	r.POST("/production/produce/:product_id", controllers.ProduceProduct)
+
+	// Sales
+	r.GET("/sales", controllers.ListSales)
+	r.POST("/sales/add", controllers.MakeSale)
+
+	// Salaries
+	r.GET("/salaries", controllers.ShowSalariesPage)
+	r.GET("/salaries/:year/:month", controllers.GetSalaryByDate)
+	r.POST("/salaries/calculate/:year/:month", controllers.CalculateSalary)
+	r.PUT("/salaries/edit/:id", controllers.EditSalary)
+	r.POST("/salaries/pay/:year/:month", controllers.PaySalaries)
+	r.GET("/salaries/total-unpaid/:year/:month", controllers.GetUnpaidSalariesTotal)
 
 	// WebSocket
 	r.GET("/ws", gin.WrapF(ws.HandleWebSocket))
