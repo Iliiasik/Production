@@ -47,7 +47,7 @@ nav ul li a::before {
   height: 5px;
   content: "";
   position: absolute;
-  background-color: #406e36;
+  background-color: #3f5d67;
   width: 0%;
   bottom: 0px;
 }
@@ -125,7 +125,7 @@ nav ul li ul li a {
   border-radius: 1px;
   height: 5px;
   width: 35px;
-  background: #406e36;
+  background: #3f5d67;
   position: absolute;
   display: block;
   content: "";

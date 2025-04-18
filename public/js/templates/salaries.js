@@ -13,7 +13,6 @@ function fetchSalaryData(year, month) {
                     ? `<img src="assets/images/actions/success.svg" alt="Выплачено" class="status-icon" title="Выплачено">`
                     : `<img src="assets/images/actions/error.svg" alt="Не выплачено" class="status-icon" title="Не выплачено">`;
 
-                // Иконка редактирования только если не выплачено
                 const editIcon = !item.is_paid
                     ? `<img src="assets/images/actions/edit.svg" class="edit-icon" title="Редактировать" onclick="editSalary(${item.id}, ${item.total_salary})">`
                     : '';
@@ -21,6 +20,7 @@ function fetchSalaryData(year, month) {
                 return `
         <div class="table-row">
             <div class="table-data">${item.employee.full_name}</div>
+            <div class="table-data">${item.employee.salary}</div>
             <div class="table-data">${item.purchase_count}</div>
             <div class="table-data">${item.production_count}</div>
             <div class="table-data">${item.sale_count}</div>
@@ -34,9 +34,9 @@ function fetchSalaryData(year, month) {
         </div>
     `;
             }).join("");
-
         });
 }
+
 function editSalary(recordId, currentSalary) {
     showModal('Редактировать зарплату', `
         <form id="editSalaryForm">
@@ -78,17 +78,11 @@ function editSalary(recordId, currentSalary) {
     });
 }
 
-document.getElementById('showBtn').addEventListener('click', function () {
+// Автоматический расчет и отображение при выборе года/месяца
+function calculateAndFetchSalary() {
     const year = document.getElementById('yearSelect').value;
     const month = document.getElementById('monthSelect').value;
-    if (!year || !month) return Swal.fire('Ошибка', 'Выберите год и месяц', 'warning');
-    fetchSalaryData(year, month);
-});
-
-document.getElementById('calculateBtn').addEventListener('click', function () {
-    const year = document.getElementById('yearSelect').value;
-    const month = document.getElementById('monthSelect').value;
-    if (!year || !month) return Swal.fire('Ошибка', 'Выберите год и месяц', 'warning');
+    if (!year || !month) return;
 
     fetch(`/salaries/calculate/${year}/${month}`, { method: 'POST' })
         .then(res => {
@@ -107,8 +101,15 @@ document.getElementById('calculateBtn').addEventListener('click', function () {
                 Swal.fire('Ошибка', 'Не удалось рассчитать зарплату', 'error');
             }
         });
-});
+}
 
+// Обработка изменения года и месяца
+document.getElementById('yearSelect').addEventListener('change', calculateAndFetchSalary);
+document.getElementById('monthSelect').addEventListener('change', calculateAndFetchSalary);
+
+// Удалена кнопка showBtn
+
+// Осталась только кнопка выплаты
 document.getElementById('payBtn').addEventListener('click', function () {
     const year = document.getElementById('yearSelect').value;
     const month = document.getElementById('monthSelect').value;
