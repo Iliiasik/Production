@@ -6,13 +6,15 @@ type Position struct {
 }
 
 type Employee struct {
-	ID         uint     `json:"id" gorm:"primaryKey"`
-	FullName   string   `json:"full_name" gorm:"type:varchar(100);not null"`
-	PositionID uint     `json:"position_id" gorm:"index;not null"`
-	Position   Position `json:"position" gorm:"foreignKey:PositionID;constraint:OnDelete:CASCADE"`
-	Salary     float64  `json:"salary" gorm:"not null"`
-	Address    string   `json:"address" gorm:"type:varchar(200)"`
-	Phone      string   `json:"phone" gorm:"type:varchar(20)"`
+	ID           uint     `json:"id" gorm:"primaryKey"`
+	FullName     string   `json:"full_name" gorm:"type:varchar(100);not null"`
+	Username     string   `json:"username" gorm:"type:varchar(100);uniqueIndex"`
+	PasswordHash string   `json:"-"`
+	PositionID   uint     `json:"position_id" gorm:"index;not null"`
+	Position     Position `json:"position" gorm:"foreignKey:PositionID;constraint:OnDelete:CASCADE"`
+	Salary       float64  `json:"salary" gorm:"not null"`
+	Address      string   `json:"address" gorm:"type:varchar(200)"`
+	Phone        string   `json:"phone" gorm:"type:varchar(20)"`
 }
 
 type SalaryRecord struct {

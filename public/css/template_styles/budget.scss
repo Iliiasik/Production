@@ -1,0 +1,90 @@
+.budget-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+}
+
+.main-budget-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 40px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+
+  .budget-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .budget-info {
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      color: #262626;
+    }
+
+    .budget-amount {
+      font-size: 32px;
+      font-weight: bold;
+      color: #000000;
+      margin: 5px 0 0;
+    }
+  }
+}
+
+.sub-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .sub-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 25px;
+    border-radius: 15px;
+    min-width: 160px;
+
+    span {
+      color: #262626;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 20px;
+      color: #000000;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    &.action-card {
+      a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+
+        img {
+          width: 32px;
+          height: 32px;
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+}
+
+// Общий стеклянный стиль
+.glass-card {
+  background: rgba(168 168 168 / 8%);
+  border: 1px solid rgba(207 207 207 / 15%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

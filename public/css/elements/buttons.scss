@@ -5,17 +5,38 @@ $primary-active: #2e8644;
 
 $text-color: #fff;
 
-$hover-color: #007bff;
-$text-color-actions: #333;
-// Стили контейнера заголовка
+
+$icon-button-bg: #f7f7f7; // молочный фон
+$icon-button-hover: #e5e5e5; // светлый серый при наведении
+$tooltip-bg: #333;
+$tooltip-color: #fff;
+
+
+
 .header-container {
   display: flex;
-  margin: 1%;
-  align-items: center;
   justify-content: center;
-  font-size: 14px;
-  gap: 3%;
+  gap: 6%;
+  align-items: center;
+  padding: 1% 10% 2%;
+  background-color: #fff;
+  max-width: 100%; // такой же как у nav
 }
+
+
+.header-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1c1c1e;
+  margin: 0;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background-color: #f5f5f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease-in-out;
+}
+
 .header-container-foot {
   display: flex;
   margin: 2%;
@@ -24,58 +45,76 @@ $text-color-actions: #333;
   font-size: 14px;
   gap: 3%;
 }
+.product-ingredients-frame {
+  padding: 12px 20px;
+  border-radius: 12px;
+  background-color: #f5f5f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  display: inline-block;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.ingredients-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1c1e;
+  letter-spacing: 0.4px;
+}
+
+.ingredients-product {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #007aff;
+}
+
 // Основные стили кнопки
 .button {
-  position: relative;
   width: 150px;
   height: 40px;
   cursor: pointer;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   border: 1px solid $primary-border;
   background-color: $primary-color;
-  transition: all 0.3s;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 
   &__text {
-    transform: translateX(30px);
     color: $text-color;
     font-size: 16px;
     font-family: "TildaSans", serif;
-    transition: all 0.3s;
+    text-align: center;
+    justify-self: center;
+    transition: color 0.3s ease;
   }
 
   &__icon {
-    position: absolute;
-    transform: translateX(109px);
     height: 100%;
     width: 39px;
     background-color: $primary-border;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
+    transition: background-color 0.3s ease;
 
     .svg {
-      width: 30px;
+      width: 20px;
+      height: 20px;
       stroke: $text-color;
+      transition: transform 0.6s ease;
     }
   }
 
   &:hover {
-    background: $primary-hover;
-
-    .button__text {
-      color: transparent;
-    }
-
-    .button__icon {
-      width: 148px;
-      transform: translateX(0);
+    .button__icon .svg {
+      transform: rotate(180deg) scale(1.1);
     }
   }
 
   &:active {
-    border: 1px solid $primary-active;
+    border-color: $primary-active;
 
     .button__icon {
       background-color: $primary-active;
@@ -85,28 +124,139 @@ $text-color-actions: #333;
 
 
 
+
+
+
 .action-buttons {
   display: flex;
   justify-content: center;
-  gap: 2%;
+  gap: 12px;
 }
 
-.action-text {
-  font-weight: bold;
-  font-size: 16px;
-  color: $text-color-actions;
-  text-decoration: none;
+.icon-button {
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: $hover-color;
-  }
+  justify-content: center;
+  background-color: $icon-button-bg;
+  border-radius: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
 
   img {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
   }
+
+  &:hover {
+    background-color: $icon-button-hover;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 50%;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    background-color: $tooltip-bg;
+    color: $tooltip-color;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 5;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+
+  &.left-tooltip::after {
+    right: 110%;
+    transform: translateY(-50%);
+  }
+
+  &.left-tooltip:hover::after {
+    transform: translateY(-50%) translateX(-5px);
+  }
+
+  &.right-tooltip::after {
+    left: 110%;
+    transform: translateY(-50%);
+  }
+
+  &.right-tooltip:hover::after {
+    transform: translateY(-50%) translateX(5px);
+  }
+}
+
+.status {
+  padding: 5px 15px;
+  border-radius: 15px;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.status.active {
+  background-color: #f8d7da; /* красный */
+  color: #721c24;
+}
+
+.status.closed {
+  background-color: #d4edda; /* зеленый */
+  color: #155724;
+}
+
+.payment-button {
+  align-items: center;
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: .25rem;
+  box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: "TildaSans", serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 1.25;
+  min-height: 3rem;
+  padding: calc(.875rem - 1px) calc(1.5rem - 1px);
+  text-decoration: none;
+  transition: all 250ms;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  width: auto;
+}
+
+.payment-button:hover,
+.payment-button:focus {
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.payment-button:hover {
+  transform: translateY(-1px);
+}
+
+.payment-button:active {
+  background-color: #F0F0F1;
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+  color: rgba(0, 0, 0, 0.65);
+  transform: translateY(0);
 }

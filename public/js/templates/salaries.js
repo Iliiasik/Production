@@ -68,6 +68,7 @@ function editSalary(recordId, currentSalary) {
                     const year = document.getElementById('yearSelect').value;
                     const month = document.getElementById('monthSelect').value;
                     fetchSalaryData(year, month);
+                    updateTotalUnpaidDisplay(year, month);
                 } else {
                     Swal.showValidationMessage('Ошибка при обновлении');
                 }
@@ -77,12 +78,38 @@ function editSalary(recordId, currentSalary) {
             });
     });
 }
+function updateTotalUnpaidDisplay(year, month) {
+    if (!year || !month) {
+        document.getElementById('totalUnpaidDisplay').innerText = '';
+        return;
+    }
+
+    fetch(`/salaries/total-unpaid/${year}/${month}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.total !== undefined) {
+                const totalFormatted = new Intl.NumberFormat('ru-RU', {
+                    style: 'currency',
+                    currency: 'KGS',
+                    minimumFractionDigits: 2
+                }).format(data.total);
+
+                document.getElementById('totalUnpaidDisplay').innerText = `К выплате: ${totalFormatted}`;
+            } else {
+                document.getElementById('totalUnpaidDisplay').innerText = '';
+            }
+        })
+        .catch(() => {
+            document.getElementById('totalUnpaidDisplay').innerText = '';
+        });
+}
 
 // Автоматический расчет и отображение при выборе года/месяца
 function calculateAndFetchSalary() {
     const year = document.getElementById('yearSelect').value;
     const month = document.getElementById('monthSelect').value;
     if (!year || !month) return;
+
 
     fetch(`/salaries/calculate/${year}/${month}`, { method: 'POST' })
         .then(res => {
@@ -97,6 +124,7 @@ function calculateAndFetchSalary() {
                     timerProgressBar: true
                 });
                 fetchSalaryData(year, month);
+                updateTotalUnpaidDisplay(year, month);
             } else {
                 Swal.fire('Ошибка', 'Не удалось рассчитать зарплату', 'error');
             }

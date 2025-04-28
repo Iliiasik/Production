@@ -197,15 +197,13 @@ function updateIngredientsTable() {
                         <div class="table-data">${i.material}</div>
                         <div class="table-data">${i.quantity}</div>
                         <div class="table-data action-buttons">
-                            <a href="#" class="action-text edit-btn" data-id="${i.id}">
-                                <span>Редактировать</span>
-                                <img src="assets/images/actions/edit.svg" alt="Edit">
-                            </a>
-                            <a href="#" class="action-text delete-btn" data-id="${i.id}">
-                                <span>Удалить</span>
-                                <img src="assets/images/actions/delete.svg" alt="Delete">
-                            </a>
-                        </div>
+                    <a href="#" class="icon-button edit-btn left-tooltip" data-id="${i.id}" data-tooltip="Редактировать">
+                        <img src="assets/images/actions/edit.svg" alt="Edit">
+                    </a>
+                    <a href="#" class="icon-button delete-btn right-tooltip" data-id="${i.id}" data-tooltip="Удалить">
+                        <img src="assets/images/actions/delete.svg" alt="Delete">
+                    </a>
+                </div>
                     </div>`).join("");
         });
 }

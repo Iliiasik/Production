@@ -3,93 +3,121 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"production/controllers"
-	"production/ws"
+	"production/middleware"
 )
 
 func RegisterRoutes(r *gin.Engine) {
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "home.html", nil)
+		c.HTML(200, "login.html", nil)
 	})
 
 	// Units
-	r.GET("/units", controllers.ListUnits)
-	r.DELETE("/units/delete/:id", controllers.DeleteUnit)
-	r.POST("/units/add", controllers.AddUnit)
-	r.POST("/units/edit/:id", controllers.UpdateUnit)
-	r.GET("/units/get/:id", controllers.GetUnit)
-	r.GET("/units/list", controllers.GetUnitsList)
+	r.GET("/units", middleware.Authorize("/units"), controllers.ListUnits)
+	r.DELETE("/units/delete/:id", middleware.Authorize("/units/delete/:id"), controllers.DeleteUnit)
+	r.POST("/units/add", middleware.Authorize("/units/add"), controllers.AddUnit)
+	r.POST("/units/edit/:id", middleware.Authorize("/units/edit/:id"), controllers.UpdateUnit)
+	r.GET("/units/get/:id", middleware.Authorize("/units/get/:id"), controllers.GetUnit)
+	r.GET("/units/list", middleware.Authorize("/units/list"), controllers.GetUnitsList)
 
-	//Raw materials
-	r.GET("/raw-materials", controllers.ListRawMaterials)
-	r.DELETE("/raw-materials/delete/:id", controllers.DeleteRawMaterial)
-	r.POST("/raw-materials/add", controllers.AddRawMaterial)
-	r.POST("/raw-materials/edit/:id", controllers.UpdateRawMaterial)
-	r.GET("/raw-materials/get/:id", controllers.GetRawMaterial)
-	r.GET("/raw-materials/list", controllers.GetRawMaterialsList)
+	// Raw materials
+	r.GET("/raw-materials", middleware.Authorize("/raw-materials"), controllers.ListRawMaterials)
+	r.DELETE("/raw-materials/delete/:id", middleware.Authorize("/raw-materials/delete/:id"), controllers.DeleteRawMaterial)
+	r.POST("/raw-materials/add", middleware.Authorize("/raw-materials/add"), controllers.AddRawMaterial)
+	r.POST("/raw-materials/edit/:id", middleware.Authorize("/raw-materials/edit/:id"), controllers.UpdateRawMaterial)
+	r.GET("/raw-materials/get/:id", middleware.Authorize("/raw-materials/get/:id"), controllers.GetRawMaterial)
+	r.GET("/raw-materials/list", middleware.Authorize("/raw-materials/list"), controllers.GetRawMaterialsList)
 
 	// Finished goods
-	r.GET("/finished-goods", controllers.ListFinishedGoods)
-	r.DELETE("/finished-goods/delete/:id", controllers.DeleteFinishedGood)
-	r.POST("/finished-goods/add", controllers.AddFinishedGood)
-	r.POST("/finished-goods/edit/:id", controllers.UpdateFinishedGood)
-	r.GET("/finished-goods/get/:id", controllers.GetFinishedGood)
-	r.GET("/finished-goods/list", controllers.GetFinishedGoodsList)
+	r.GET("/finished-goods", middleware.Authorize("/finished-goods"), controllers.ListFinishedGoods)
+	r.DELETE("/finished-goods/delete/:id", middleware.Authorize("/finished-goods/delete/:id"), controllers.DeleteFinishedGood)
+	r.POST("/finished-goods/add", middleware.Authorize("/finished-goods/add"), controllers.AddFinishedGood)
+	r.POST("/finished-goods/edit/:id", middleware.Authorize("/finished-goods/edit/:id"), controllers.UpdateFinishedGood)
+	r.GET("/finished-goods/get/:id", middleware.Authorize("/finished-goods/get/:id"), controllers.GetFinishedGood)
+	r.GET("/finished-goods/list", middleware.Authorize("/finished-goods/list"), controllers.GetFinishedGoodsList)
 
 	// Ingredients
-	r.GET("/ingredients", controllers.ListIngredients)
-	r.DELETE("/ingredients/delete/:id", controllers.DeleteIngredient)
-	r.POST("/ingredients/add", controllers.AddIngredient)
-	r.POST("/ingredients/edit/:id", controllers.UpdateIngredient)
-	r.GET("/ingredients/get/:id", controllers.GetIngredient)
-	r.GET("/ingredients/:product_id", controllers.GetIngredientsByProduct)
-	r.GET("/ingredients/used-raw-materials/:product_id", controllers.GetUsedRawMaterialsByProduct)
-	r.GET("/ingredients/list", controllers.GetIngredientsList)
+	r.GET("/ingredients", middleware.Authorize("/ingredients"), controllers.ListIngredients)
+	r.DELETE("/ingredients/delete/:id", middleware.Authorize("/ingredients/delete/:id"), controllers.DeleteIngredient)
+	r.POST("/ingredients/add", middleware.Authorize("/ingredients/add"), controllers.AddIngredient)
+	r.POST("/ingredients/edit/:id", middleware.Authorize("/ingredients/edit/:id"), controllers.UpdateIngredient)
+	r.GET("/ingredients/get/:id", middleware.Authorize("/ingredients/get/:id"), controllers.GetIngredient)
+	r.GET("/ingredients/:product_id", middleware.Authorize("/ingredients/:product_id"), controllers.GetIngredientsByProduct)
+	r.GET("/ingredients/used-raw-materials/:product_id", middleware.Authorize("/ingredients/used-raw-materials/:product_id"), controllers.GetUsedRawMaterialsByProduct)
+	r.GET("/ingredients/list", middleware.Authorize("/ingredients/list"), controllers.GetIngredientsList)
 
-	// Purchases - table
-	r.GET("/raw-material-purchases", controllers.ListRawMaterialPurchases)
-	r.DELETE("/purchases/delete/:id", controllers.DeletePurchase)
-	r.POST("/purchases/add", controllers.AddPurchase)
+	// Purchases
+	r.GET("/raw-material-purchases", middleware.Authorize("/raw-material-purchases"), controllers.ListRawMaterialPurchases)
+	r.DELETE("/purchases/delete/:id", middleware.Authorize("/purchases/delete/:id"), controllers.DeletePurchase)
+	r.POST("/purchases/add", middleware.Authorize("/purchases/add"), controllers.AddPurchase)
 
 	// Employees
-	r.GET("/employees", controllers.ListEmployees)
-	r.GET("/employees/list", controllers.GetEmployeesList)
-	r.GET("/positions/list", controllers.GetAllPositions)
-	r.GET("/employees/get/:id", controllers.GetEmployee)
-	r.POST("/employees/add", controllers.AddEmployee)
-	r.POST("/employees/edit/:id", controllers.UpdateEmployee)
-	r.DELETE("/employees/delete/:id", controllers.DeleteEmployee)
+	r.GET("/employees", middleware.Authorize("/employees"), controllers.ListEmployees)
+	r.GET("/employees/list", middleware.Authorize("/employees/list"), controllers.GetEmployeesList)
+	r.GET("/positions/list", middleware.Authorize("/positions/list"), controllers.GetAllPositions)
+	r.GET("/employees/get/:id", middleware.Authorize("/employees/get/:id"), controllers.GetEmployee)
+	r.POST("/employees/add", middleware.Authorize("/employees/add"), controllers.AddEmployee)
+	r.POST("/employees/edit/:id", middleware.Authorize("/employees/edit/:id"), controllers.UpdateEmployee)
+	r.DELETE("/employees/delete/:id", middleware.Authorize("/employees/delete/:id"), controllers.DeleteEmployee)
 
 	// Positions
-	r.POST("/positions/add", controllers.AddPosition)
-	r.POST("/positions/edit/:id", controllers.EditPosition)
-	r.DELETE("/positions/delete/:id", controllers.DeletePosition)
-	r.GET("/positions/get/:id", controllers.GetPosition)
-	r.GET("/positions", controllers.ListPositions)
+	r.POST("/positions/add", middleware.Authorize("/positions/add"), controllers.AddPosition)
+	r.POST("/positions/edit/:id", middleware.Authorize("/positions/edit/:id"), controllers.EditPosition)
+	r.DELETE("/positions/delete/:id", middleware.Authorize("/positions/delete/:id"), controllers.DeletePosition)
+	r.GET("/positions/get/:id", middleware.Authorize("/positions/get/:id"), controllers.GetPosition)
+	r.GET("/positions", middleware.Authorize("/positions"), controllers.ListPositions)
 
 	// Budget
-	r.GET("/budget", controllers.BudgetList)
-	r.GET("/budget/get-row/:id", controllers.GetBudgetRow)
-	r.GET("/budget/get", controllers.GetBudget)
-	r.GET("/markup/get", controllers.GetMarkup)
-	r.PUT("/budget/update/:id", controllers.UpdateBudget)
+	r.GET("/budget", middleware.Authorize("/budget"), controllers.BudgetList)
+	r.GET("/budget/get-row/:id", middleware.Authorize("/budget/get-row/:id"), controllers.GetBudgetRow)
+	r.GET("/budget/get", middleware.Authorize("/budget/get"), controllers.GetBudget)
+	r.GET("/markup/get", middleware.Authorize("/markup/get"), controllers.GetMarkup)
+	r.PUT("/budget/update/:id", middleware.Authorize("/budget/update/:id"), controllers.UpdateBudget)
 
 	// Production
-	r.GET("/production", controllers.ListProductProduction)
-	r.POST("/production/produce/:product_id", controllers.ProduceProduct)
+	r.GET("/production", middleware.Authorize("/production"), controllers.ListProductProduction)
+	r.POST("/production/produce/:product_id", middleware.Authorize("/production/produce/:product_id"), controllers.ProduceProduct)
 
 	// Sales
-	r.GET("/sales", controllers.ListSales)
-	r.POST("/sales/add", controllers.MakeSale)
+	r.GET("/sales", middleware.Authorize("/sales"), controllers.ListSales)
+	r.POST("/sales/add", middleware.Authorize("/sales/add"), controllers.MakeSale)
 
 	// Salaries
-	r.GET("/salaries", controllers.ShowSalariesPage)
-	r.GET("/salaries/:year/:month", controllers.GetSalaryByDate)
-	r.POST("/salaries/calculate/:year/:month", controllers.CalculateSalary)
-	r.PUT("/salaries/edit/:id", controllers.EditSalary)
-	r.POST("/salaries/pay/:year/:month", controllers.PaySalaries)
-	r.GET("/salaries/total-unpaid/:year/:month", controllers.GetUnpaidSalariesTotal)
+	r.GET("/salaries", middleware.Authorize("/salaries"), controllers.ShowSalariesPage)
+	r.GET("/salaries/:year/:month", middleware.Authorize("/salaries/:year/:month"), controllers.GetSalaryByDate)
+	r.POST("/salaries/calculate/:year/:month", middleware.Authorize("/salaries/calculate/:year/:month"), controllers.CalculateSalary)
+	r.PUT("/salaries/edit/:id", middleware.Authorize("/salaries/edit/:id"), controllers.EditSalary)
+	r.POST("/salaries/pay/:year/:month", middleware.Authorize("/salaries/pay/:year/:month"), controllers.PaySalaries)
+	r.GET("/salaries/total-unpaid/:year/:month", middleware.Authorize("/salaries/total-unpaid/:year/:month"), controllers.GetUnpaidSalariesTotal)
 
-	// WebSocket
-	r.GET("/ws", gin.WrapF(ws.HandleWebSocket))
+	// Credits
+	r.GET("/credits", middleware.Authorize("/credits"), controllers.ListCredits)
+	r.POST("/credits/add", middleware.Authorize("/credits/add"), controllers.CreateCredit)
+	r.GET("/credits/:id/payments", middleware.Authorize("/credits/:id/payments"), controllers.ShowPaymentsPage)
+	r.POST("/credits/pay/:id", middleware.Authorize("/credits/pay/:id"), controllers.PayCredit)
+
+	// Profile
+	r.POST("/login", controllers.Login)
+	r.POST("/change-password", controllers.ChangePassword)
+	r.GET("/logout", controllers.Logout)
+	r.GET("/home", middleware.Authorize("/home"), controllers.HomePage)
+	r.GET("/user/permissions", controllers.GetUserPermissions)
+
+	adminGroup := r.Group("/admin")
+	{
+		// Управление ролями
+		adminGroup.GET("/roles", controllers.AllPositions)
+		adminGroup.GET("/roles/:id/permissions", controllers.GetPositionPermissions)
+		adminGroup.PUT("/roles/:id/permissions/update", controllers.UpdatePositionPermissions) // Обновление разрешений роли
+
+		// Управление пользователями
+		adminGroup.GET("/users", controllers.AllUsers)
+		adminGroup.GET("/users/:id/permissions", controllers.GetEmployeePermissionsByID)
+		adminGroup.PUT("/users/:id/permissions/update", controllers.UpdateUserPermissions) // Обновление разрешений пользователя
+		adminGroup.GET("/users/:id/role", controllers.GetRoleByUserID)
+
+		adminGroup.GET("/permissions", controllers.AllPermissions)
+
+	}
+
 }

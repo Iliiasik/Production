@@ -150,7 +150,7 @@ document.getElementById("addBtn").addEventListener("click", () => {
                 `<option value="${pos.id}">${pos.name}</option>`
             ).join("");
 
-            showModal('Добавить сотрудника', `
+            showModal('Добавить запись', `
                 <form id="addForm">
                     <div class="form-group">
                         <label for="fullName">ФИО:</label>

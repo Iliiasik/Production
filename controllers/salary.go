@@ -75,7 +75,7 @@ func CalculateSalary(c *gin.Context) {
 		return
 	}
 
-	if err := database.DB.Exec("CALL calculatesalary(?, ?)", year, month).Error; err != nil {
+	if err := database.DB.Exec("CALL calculate_salary(?, ?)", year, month).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при расчёте зарплат"})
 		return
 	}

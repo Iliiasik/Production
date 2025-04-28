@@ -1,55 +1,47 @@
 :root {
   --gray: #34495e;
   --darkgray: #2c3e50;
+  --accent: #1c8fa1;
 }
 
-/* Custom Select wrapper */
+/* Custom Select */
 .select {
-  position: relative;
   display: flex;
   width: 20em;
   height: 3em;
   border-radius: 0.25em;
   overflow: hidden;
+  background-color: var(--darkgray);
 
   select {
-    /* Reset Select */
     appearance: none;
-font-family: "TildaSans", sans-serif;
+    font-family: "TildaSans", sans-serif;
     font-size: 18px;
-    border: 0;
-    box-shadow: none;
-
-    /* Personalize */
-    flex: 1;
-    padding: 0 1em;
     color: #fff;
-    background-color: var(--darkgray);
-    background-image: none;
+    border: none;
+    width: 100%;
+    padding: 0 1em;
+    background-color: transparent;
     cursor: pointer;
 
-    /* Remove IE arrow */
-    ::-ms-expand {
+    // стрелка (в виде SVG)
+    background-image: url("data:image/svg+xml,%3Csvg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75em center;
+    background-size: 1em;
+
+    &:hover {
+      background-color: var(--gray);
+    }
+
+    &:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    // IE / Edge
+    &::-ms-expand {
       display: none;
     }
   }
-
-  /* Arrow */
-  &::after {
-    content: '\25BC';
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0.75em;
-    background-color: #34495e;
-    color: #ffffff;
-    transition: 0.25s all ease;
-    pointer-events: none;
-  }
-
-  /* Transition */
-  &:hover::after {
-    color: #1c8fa1;
-  }
 }
-

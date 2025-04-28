@@ -1,47 +1,86 @@
-/* Данный CSS-файл устанавливает кастомизированные стили для SweetAlert2 */
+/* Обновлённый стиль SweetAlert2 под светлый фон */
 .swal2-popup {
     width: 500px;
-    padding: 20px;
+    padding: 24px;
     font-size: 16px;
+    backdrop-filter: blur(14px);
+    background: rgba(255, 255, 255, 0.65);
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    color: #2c2c2c;
 }
 
 .swal2-input {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 8px;
+    background: rgba(255, 255, 255, 0.75); /* чуть более прозрачный */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
     width: 100%;
+    color: #2c2c2c;
+    font-size: 15px;
+    font-family: 'TildaSans', sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* лёгкий объем */
 }
 
+/* Общие стили */
 .popup-class {
     font-size: 16px;
+    color: #333;
 }
 
 .custom-button {
     font-family: 'TildaSans', sans-serif !important;
     font-size: 16px !important;
+    background: rgba(0, 0, 0, 0.05);
+    color: #222 !important;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.input-field {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
+.custom-button:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
+
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #222;
 }
 
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
+/* Инпуты */
+.input-field,
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 15px;
+    color: #222;
+    backdrop-filter: blur(4px);
+    font-family: 'TildaSans', sans-serif;
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Таблицы */
 .table-cell {
     padding: 10px;
     border: 1px solid #ddd;
+    color: #222;
 }
 
 table {
@@ -51,41 +90,36 @@ table {
 }
 
 tr {
-    background-color: #f4f4f4;
+    background-color: rgba(0, 0, 0, 0.03);
     text-align: left;
 }
 
-.form-group input[type="text"],
-.form-group select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
 .budget-box, .info-box {
-    background-color: #f2f2f2;
+    background-color: rgba(0, 0, 0, 0.03);
     padding: 12px;
     margin-bottom: 10px;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 18px;
     font-weight: bold;
+    color: #222;
 }
 
+/* Материалы */
 .required-materials {
     list-style-type: none;
     padding: 0;
     margin-top: 2%;
 }
+
 .required-materials li {
     margin-bottom: 8px;
     font-size: 16px;
     font-weight: 500;
     text-align: left;
+    color: #222;
 }
 
+/* Иконки */
 .status-icon {
     width: 22px;
     height: 22px;
@@ -95,7 +129,8 @@ tr {
     transition: transform 0.2s ease;
 }
 
-.status-icon:hover, .edit-icon:hover {
+.status-icon:hover,
+.edit-icon:hover {
     transform: scale(1.15);
 }
 
@@ -105,4 +140,3 @@ tr {
     cursor: pointer;
     transition: transform 0.2s ease;
 }
-

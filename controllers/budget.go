@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"log"
 	"production/database"
@@ -51,20 +53,39 @@ func GetMarkup(c *gin.Context) {
 }
 
 func BudgetList(c *gin.Context) {
-	// Fetch все записи
-	var budget []models.Budget
-	if err := database.DB.Find(&budget).Error; err != nil {
+	var budgets []models.Budget
+	if err := database.DB.Find(&budgets).Error; err != nil {
 		log.Printf("Ошибка при получении бюджета: %v", err)
 		c.JSON(500, gin.H{"error": "Не удалось получить бюджет"})
 		return
 	}
 
-	// Передача данных в шаблон
+	type BudgetView struct {
+		ID                   uint
+		TotalAmount          float64
+		TotalAmountFormatted string
+		Markup               float64
+		SalaryBonus          float64
+	}
+
+	var viewData []BudgetView
+	for _, b := range budgets {
+		// Пример: "KGS 123 456.79"
+		formatted := fmt.Sprintf("KGS %s", humanize.FormatFloat("# ###.##", b.TotalAmount))
+
+		viewData = append(viewData, BudgetView{
+			ID:                   b.ID,
+			TotalAmount:          b.TotalAmount,
+			TotalAmountFormatted: formatted,
+			Markup:               b.Markup,
+			SalaryBonus:          b.SalaryBonus,
+		})
+	}
+
 	c.HTML(200, "budget.html", gin.H{
-		"budget": budget,
+		"budget": viewData,
 	})
 }
-
 func UpdateBudget(c *gin.Context) {
 	id := c.Param("id")
 	var budget models.Budget

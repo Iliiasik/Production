@@ -37,6 +37,7 @@ func DeleteUnit(c *gin.Context) {
 	log.Printf("Unit with ID %s deleted successfully", id)
 	c.JSON(200, gin.H{"success": true})
 }
+
 func AddUnit(c *gin.Context) {
 	var unit models.Unit
 	if err := c.ShouldBindJSON(&unit); err != nil {

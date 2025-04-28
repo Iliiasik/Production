@@ -23,37 +23,57 @@
     <div class="nav-container">
 
         <div class="brand">
-            <a href="/">Производство спортивного инвентаря</a>
+            <a href="/home">Производство спортивного инвентаря</a>
         </div>
+
         <nav>
             <div class="nav-mobile">
                 <a id="nav-toggle" href="/"><span></span></a>
             </div>
+
             <ul class="nav-list">
                 <li>
-                    <a href="#!">Формы</a>
+                    <a href="#!">Инвентарь</a>
                     <ul class="nav-dropdown">
                         <li><a href="/units">Единицы измерения</a></li>
                         <li><a href="/raw-materials">Сырье</a></li>
                         <li><a href="/finished-goods">Продукция</a></li>
                         <li><a href="/ingredients">Список ингредиентов</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#!">Транзакции</a>
+                    <ul class="nav-dropdown">
                         <li><a href="/raw-material-purchases">Закупка сырья</a></li>
                         <li><a href="/production">Производство продукции</a></li>
                         <li><a href="/sales">Продажа продукции</a></li>
-                        <li><a href="/employees">Сотрудники</a></li>
-                        <li><a href="/salaries">Выдача зарплаты</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#!">Финансы</a>
+                    <ul class="nav-dropdown">
                         <li><a href="/budget">Бюджет</a></li>
+                        <li><a href="/credits">Кредиты</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#!">Сотрудники</a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/employees">Сотрудники</a></li>
+                        <li><a href="/positions">Должности</a></li>
+                        <li><a href="/salaries">Выдача зарплаты</a></li>
                     </ul>
                 </li>
             </ul>
         </nav>
+
     </div>
 </section>
 <div class="wrapper">
 <main>
     <div class="content">
         <div class="header-container">
-            <h1>Список сырья</h1>
+            <div class="header-title">Список сырья</div>
             <button type="button" class="button" id="addBtn">
                 <span class="button__text">Добавить</span>
                 <span class="button__icon">
@@ -82,12 +102,10 @@
                     <div class="table-data">{{.Quantity}}</div>
                     <div class="table-data">{{.TotalAmount}}</div>
                     <div class="table-data action-buttons">
-                        <a href="#" class="action-text edit-btn" data-id="{{.ID}}">
-                            <span>Редактировать</span>
+                        <a href="#" class="icon-button edit-btn left-tooltip" data-id="{{.ID}}" data-tooltip="Редактировать">
                             <img src="assets/images/actions/edit.svg" alt="Edit">
                         </a>
-                        <a href="#" class="action-text delete-btn" data-id="{{.ID}}">
-                            <span>Удалить</span>
+                        <a href="#" class="icon-button delete-btn right-tooltip" data-id="{{.ID}}" data-tooltip="Удалить">
                             <img src="assets/images/actions/delete.svg" alt="Delete">
                         </a>
                     </div>
