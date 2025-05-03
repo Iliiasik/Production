@@ -2,12 +2,23 @@ const main = document.getElementById('user-dashboard');
 const fullName = main.dataset.fullname;
 const position = main.dataset.position;
 const salary = main.dataset.salary;
+const username = main.dataset.username;
+const ispasswordchanged = main.dataset.ispasswordchanged;
+
+const passwordChangeWarning = ispasswordchanged === "false" ? `
+  <div class="password-warning">
+    <img src="assets/images/actions/warning.svg" alt="Warning" class="warning-icon">
+    <p><strong>Смените пароль для безопасности.</strong></p>
+  </div>
+` : '';
+
 
 const html = `
 <section class="cards-wrapper">
   <div class="card card--large">
     <div class="profile-info">
       <h2>Добро пожаловать, ${fullName}!</h2>
+      <p class="username-text">@${username}</p>
 
       <div class="glass-cards-container">
         <div class="glass-card">
@@ -31,7 +42,8 @@ const html = `
           <div class="sign"></div>
           <div class="text">Сменить пароль</div>
         </button>
-
+        ${passwordChangeWarning}  <!-- Здесь предупреждение -->
+        
         <button id="logout-button" class="profile-button">
           <div class="sign"></div>
           <div class="text">Выйти</div>
@@ -41,11 +53,11 @@ const html = `
 
     <div class="card card--small">
       <div class="actions-list">
-    <button id="show-permissions-button" class="profile-button">Ваши доступы</button>
-    ${position === 'Админ' ? `
-      <button id="manage-access-button" class="profile-button">Управление доступами</button>
-    ` : ''}
-    </div>
+        <button id="show-permissions-button" class="profile-button">Ваши доступы</button>
+        ${position === 'Админ' ? `
+          <button id="manage-access-button" class="profile-button">Управление доступами</button>
+        ` : ''}
+      </div>
     </div>
   </div>
 </section>
@@ -158,13 +170,13 @@ if (manageAccessButton) {
         panel.innerHTML = `
             <h4>Управление доступами</h4>
             <div class="select-mode">
-                <button id="roles-mode-button" class="profile-button">Роли</button>
+                <button id="roles-mode-button" class="profile-button">Должности</button>
                 <button id="users-mode-button" class="profile-button">Пользователи</button>
             </div>
             <div id="management-content" class="management-content hidden"></div>
             <div class="actions-center">
                 <button id="close-permissions" class="profile-button">Закрыть</button>
-                <button id="save-role-permissions-button" class="profile-button hidden">Сохранить роли</button>
+                <button id="save-role-permissions-button" class="profile-button hidden">Сохранить должность</button>
                 <button id="save-user-permissions-button" class="profile-button hidden">Сохранить пользователя</button>
             </div>
         `;
@@ -184,7 +196,7 @@ if (manageAccessButton) {
                     toast: true,
                     position: 'top-end',
                     icon: 'error',
-                    title: 'Выберите роль',
+                    title: 'Выберите должность',
                     showConfirmButton: false,
                     timer: 3000
                 });
@@ -209,12 +221,12 @@ if (manageAccessButton) {
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: 'Роль обновлена',
+                    title: 'Должность обновлена',
                     showConfirmButton: false,
                     timer: 3000
                 });
             } catch (error) {
-                console.error('Ошибка сохранения роли:', error);
+                console.error('Ошибка сохранения должности:', error);
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -287,13 +299,13 @@ if (manageAccessButton) {
 
             try {
                 const respRoles = await fetch('/admin/roles');
-                if (!respRoles.ok) throw new Error('Ошибка загрузки ролей');
+                if (!respRoles.ok) throw new Error('Ошибка загрузки должностей');
 
                 const { positions } = await respRoles.json();
                 const opts = positions.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
                 managementContent.innerHTML = `
                     <select id="role-select" class="glass-select">
-                        <option value="" disabled selected>Выберите роль</option>
+                        <option value="" disabled selected>Выберите должность</option>
                         ${opts}
                     </select>
                     <div id="role-permissions" class="permissions-list"></div>
@@ -313,7 +325,7 @@ if (manageAccessButton) {
                         const allPerms = allR.permissions;
                         const roleIDs = roleR.permissions.map(p => p.id);
 
-                        let html = '<h5>Разрешения роли:</h5>';
+                        let html = '<h5>Разрешения должности:</h5>';
                         const groupedPermissions = allPerms.reduce((acc, permission) => {
                             if (!acc[permission.category]) {
                                 acc[permission.category] = [];
@@ -359,9 +371,9 @@ if (manageAccessButton) {
                     }
                 });
             } catch (error) {
-                console.error('Ошибка загрузки ролей:', error);
+                console.error('Ошибка загрузки должностей:', error);
                 managementContent.innerHTML =
-                    '<p class="error-message">Ошибка загрузки списка ролей</p>';
+                    '<p class="error-message">Ошибка загрузки списка должностей</p>';
             }
         });
 

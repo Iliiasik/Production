@@ -147,6 +147,7 @@ func seedPermissions() {
 		{Name: "/positions/list", Description: "Список должностей", Category: "Сотрудники", VisibleToUser: false},
 		{Name: "/employees/get/:id", Description: "Получение данных сотрудника", Category: "Сотрудники", VisibleToUser: false},
 		{Name: "/employees/add", Description: "Добавление сотрудника", Category: "Сотрудники", VisibleToUser: true},
+		{Name: "/employees/next-username", Description: "Получение номера логина", Category: "Сотрудники", VisibleToUser: false},
 		{Name: "/employees/edit/:id", Description: "Редактирование сотрудника", Category: "Сотрудники", VisibleToUser: true},
 		{Name: "/employees/delete/:id", Description: "Удаление сотрудника", Category: "Сотрудники", VisibleToUser: true},
 
@@ -162,6 +163,18 @@ func seedPermissions() {
 		{Name: "/salaries/edit/:id", Description: "Редактирование записи зарплаты", Category: "Сотрудники", VisibleToUser: true},
 		{Name: "/salaries/pay/:year/:month", Description: "Выдача зарплаты", Category: "Сотрудники", VisibleToUser: true},
 		{Name: "/salaries/total-unpaid/:year/:month", Description: "Получение суммы невыплаченных зарплат", Category: "Сотрудники", VisibleToUser: false},
+
+		{Name: "/admin/roles", Description: "Управление ролями", Category: "Админ", VisibleToUser: false},
+		{Name: "/admin/roles/:id/permissions", Description: "Просмотр и управление разрешениями роли", Category: "Админ", VisibleToUser: false},
+		{Name: "/admin/roles/:id/permissions/update", Description: "Обновление разрешений роли", Category: "Админ", VisibleToUser: false},
+
+		// Управление пользователями
+		{Name: "/admin/users", Description: "Управление пользователями", Category: "Админ", VisibleToUser: false},
+		{Name: "/admin/users/:id/permissions", Description: "Просмотр и управление разрешениями пользователя", Category: "Админ", VisibleToUser: false},
+		{Name: "/admin/users/:id/permissions/update", Description: "Обновление разрешений пользователя", Category: "Админ", VisibleToUser: false},
+		{Name: "/admin/users/:id/role", Description: "Просмотр роли пользователя", Category: "Админ", VisibleToUser: false},
+
+		{Name: "/admin/permissions", Description: "Управление разрешениями", Category: "Админ", VisibleToUser: false},
 	}
 
 	for _, p := range permissions {

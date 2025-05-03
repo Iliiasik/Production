@@ -21,6 +21,30 @@
 .brand a:visited {
   color: #000000;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+.brand a img {
+  height: 40px;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 10px;
+  transition: filter 0.3s ease;
+}
+.brand a span {
+  font-size: 1.1em;
+  color: #000000;
+  transition: color 0.3s ease;
+}
+.brand a:hover {
+  color: #3f5d67;
+}
+.brand a:hover img {
+  filter: brightness(0) saturate(100%) invert(36%) sepia(11%) saturate(1200%) hue-rotate(152deg) brightness(90%) contrast(85%);
+}
+.brand a:hover span {
+  color: #3f5d67;
 }
 
 nav {

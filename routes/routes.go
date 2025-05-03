@@ -8,9 +8,7 @@ import (
 
 func RegisterRoutes(r *gin.Engine) {
 
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "login.html", nil)
-	})
+	r.GET("/", controllers.ShowLoginPage)
 
 	// Units
 	r.GET("/units", middleware.Authorize("/units"), controllers.ListUnits)
@@ -57,6 +55,8 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("/positions/list", middleware.Authorize("/positions/list"), controllers.GetAllPositions)
 	r.GET("/employees/get/:id", middleware.Authorize("/employees/get/:id"), controllers.GetEmployee)
 	r.POST("/employees/add", middleware.Authorize("/employees/add"), controllers.AddEmployee)
+	r.GET("/employees/next-username", middleware.Authorize("/employees/next-username"), controllers.GetNextUsername)
+
 	r.POST("/employees/edit/:id", middleware.Authorize("/employees/edit/:id"), controllers.UpdateEmployee)
 	r.DELETE("/employees/delete/:id", middleware.Authorize("/employees/delete/:id"), controllers.DeleteEmployee)
 
@@ -106,18 +106,17 @@ func RegisterRoutes(r *gin.Engine) {
 	adminGroup := r.Group("/admin")
 	{
 		// Управление ролями
-		adminGroup.GET("/roles", controllers.AllPositions)
-		adminGroup.GET("/roles/:id/permissions", controllers.GetPositionPermissions)
-		adminGroup.PUT("/roles/:id/permissions/update", controllers.UpdatePositionPermissions) // Обновление разрешений роли
+		adminGroup.GET("/roles", middleware.Authorize("/admin/roles"), controllers.AllPositions)
+		adminGroup.GET("/roles/:id/permissions", middleware.Authorize("/admin/roles/:id/permissions"), controllers.GetPositionPermissions)
+		adminGroup.PUT("/roles/:id/permissions/update", middleware.Authorize("/admin/roles/:id/permissions/update"), controllers.UpdatePositionPermissions) // Обновление разрешений роли
 
 		// Управление пользователями
-		adminGroup.GET("/users", controllers.AllUsers)
-		adminGroup.GET("/users/:id/permissions", controllers.GetEmployeePermissionsByID)
-		adminGroup.PUT("/users/:id/permissions/update", controllers.UpdateUserPermissions) // Обновление разрешений пользователя
-		adminGroup.GET("/users/:id/role", controllers.GetRoleByUserID)
+		adminGroup.GET("/users", middleware.Authorize("/admin/users"), controllers.AllUsers)
+		adminGroup.GET("/users/:id/permissions", middleware.Authorize("/admin/users/:id/permissions"), controllers.GetEmployeePermissionsByID)
+		adminGroup.PUT("/users/:id/permissions/update", middleware.Authorize("/admin/users/:id/permissions/update"), controllers.UpdateUserPermissions) // Обновление разрешений пользователя
+		adminGroup.GET("/users/:id/role", middleware.Authorize("/admin/users/:id/role"), controllers.GetRoleByUserID)
 
-		adminGroup.GET("/permissions", controllers.AllPermissions)
-
+		adminGroup.GET("/permissions", middleware.Authorize("/admin/permissions"), controllers.AllPermissions)
 	}
 
 }

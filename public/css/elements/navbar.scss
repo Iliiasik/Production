@@ -28,6 +28,43 @@ $link-hover-color: #3f5d67;
   a:visited {
     color: $nav-font-color;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+  }
+
+  a img {
+    height: 40px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 10px;
+    transition: filter 0.3s ease;
+  }
+
+  a span {
+    font-size: 1.1em;
+    color: $nav-font-color;
+    transition: color 0.3s ease;
+  }
+
+  a:hover {
+    color: $link-hover-color;
+
+    img {
+      filter:
+              brightness(0)
+              saturate(100%)
+              invert(36%)
+              sepia(11%)
+              saturate(1200%)
+              hue-rotate(152deg)
+              brightness(90%)
+              contrast(85%);
+    }
+
+    span {
+      color: $link-hover-color;
+    }
   }
 }
 

@@ -12,13 +12,15 @@ import (
 	"strconv"
 )
 
+// Личный кабинет
 func HomePage(c *gin.Context) {
+	// Пытаемся получить JWT-токен из cookie с именем "token".
 	tokenString, err := c.Cookie("token")
 	if err != nil {
-		c.Redirect(http.StatusSeeOther, "/")
+		c.Redirect(http.StatusSeeOther, "/") // Если не нашли, редирект на страницу входа
 		return
 	}
-
+	// jwt.ParseWithClaims разбирает токен и проверяет его подпись
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return JwtKey, nil
 	})
@@ -26,35 +28,38 @@ func HomePage(c *gin.Context) {
 		c.Redirect(http.StatusSeeOther, "/")
 		return
 	}
-
+	// Claims — это структура с полями из payload токена (например, EmployeeID, Username, exp, iat).
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
 		c.Redirect(http.StatusSeeOther, "/")
 		return
 	}
-
+	// По EmployeeID, полученному из токена, загружается сотрудник из БД.
+	//Preload("Position") — это JOIN с таблицей должностей, чтобы можно было обратиться к emp.Position.Name.
 	var emp models.Employee
 	if err := database.DB.Preload("Position").First(&emp, claims.EmployeeID).Error; err != nil {
 		c.Redirect(http.StatusSeeOther, "/")
 		return
 	}
-
+	// Форматируем денежное поле
 	formattedSalary := fmt.Sprintf("KGS %s", humanize.FormatFloat("# ###.##", emp.Salary))
 
 	c.HTML(http.StatusOK, "home.html", gin.H{
-		"FullName": emp.FullName,
-		"Position": emp.Position.Name,
-		"Salary":   formattedSalary,
-		"Username": emp.Username,
+		"FullName":          emp.FullName,
+		"Position":          emp.Position.Name,
+		"Salary":            formattedSalary,
+		"Username":          emp.Username,
+		"IsPasswordChanged": emp.IsPasswordChanged,
 	})
 }
 
 func GetUserPermissions(c *gin.Context) {
 	tokenString, err := c.Cookie("token")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"}) // 401 - неавторизован
 		return
 	}
+	// Парсинг и валидация токена
 
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return JwtKey, nil
@@ -69,37 +74,36 @@ func GetUserPermissions(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-
+	// Получаем запись сотрудника из базы по ID, чтобы узнать его PositionID
 	var emp models.Employee
 	if err := database.DB.First(&emp, claims.EmployeeID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load employee"})
 		return
 	}
-
 	var rolePermissions []models.Permission
-	err = database.DB.
-		Joins("JOIN position_permissions ON position_permissions.permission_id = permissions.id").
-		Where("position_permissions.position_id = ?", emp.PositionID).
-		Find(&rolePermissions).Error
+	err = database.DB. // получаем все права (permissions), связанные с определённой должностью (position_id)
+				Joins("JOIN position_permissions ON position_permissions.permission_id = permissions.id").
+				Where("position_permissions.position_id = ?", emp.PositionID).
+				Find(&rolePermissions).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load role permissions"})
 		return
 	}
-
+	// Загружаем персональные права, выданные именно этому сотруднику
 	var userPermissions []models.UserPermission
 	err = database.DB.
-		Where("employee_id = ?", claims.EmployeeID).
+		Where("employee_id = ?", claims.EmployeeID). // claims - данные которые мы получили из JWT
 		Find(&userPermissions).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load user permissions"})
 		return
 	}
-
+	// Используем map[uint]Permission{} как структуру с уникальными правами (без дублирования по ID)
 	permissionsMap := map[uint]models.Permission{}
 	for _, p := range rolePermissions {
-		permissionsMap[p.ID] = p
+		permissionsMap[p.ID] = p // Сначала добавляются права по роли
 	}
-	for _, up := range userPermissions {
+	for _, up := range userPermissions { // Затем добавляются права пользователя (если visible_to_user = true)
 		var perm models.Permission
 		if err := database.DB.Where("id = ? AND visible_to_user = true", up.PermissionID).First(&perm).Error; err == nil {
 			permissionsMap[up.PermissionID] = perm
@@ -107,14 +111,14 @@ func GetUserPermissions(c *gin.Context) {
 			delete(permissionsMap, up.PermissionID)
 		}
 	}
-
+	// Создаётся финальный список только тех прав, которые можно показывать пользователю (VisibleToUser = true)
 	var finalPermissions []models.Permission
 	for _, p := range permissionsMap {
 		if p.VisibleToUser {
 			finalPermissions = append(finalPermissions, p)
 		}
 	}
-
+	// передаем данные
 	c.JSON(http.StatusOK, gin.H{"permissions": finalPermissions})
 }
 
@@ -122,7 +126,7 @@ func AllPositions(c *gin.Context) {
 	var positions []models.Position
 
 	if err := database.DB.Find(&positions).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка получения списка ролей"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка получения списка должностей"})
 		return
 	}
 
@@ -159,7 +163,14 @@ func AllPermissions(c *gin.Context) {
 func GetPositionPermissions(c *gin.Context) {
 	positionID := c.Param("id")
 	var permissions []models.Permission
-
+	// Model(&models.PositionPermission{})
+	//Говорит GORM, что основной запрос начинается от таблицы position_permissions (связка должностей и прав).
+	//
+	//Select("permissions.*")
+	//Мы хотим получить все поля из таблицы permissions.
+	//
+	//Joins(...)
+	//Объединяем position_permissions с таблицей permissions по полю permission_id.
 	if err := database.DB.Model(&models.PositionPermission{}).
 		Select("permissions.*").
 		Joins("JOIN permissions ON permissions.id = position_permissions.permission_id").
@@ -174,7 +185,13 @@ func GetPositionPermissions(c *gin.Context) {
 
 func GetEmployeePermissionsByID(c *gin.Context) {
 	employeeID := c.Param("id")
-
+	// Получает все права, которые назначены должности сотрудника (через таблицу position_permissions).
+	//
+	//Только если permissions.visible_to_user = true.
+	//
+	//Используется двойной JOIN:
+	//
+	//permissions ↔ position_permissions ↔ employees
 	var rolePermissions []models.Permission
 	if err := database.DB.
 		Joins("JOIN position_permissions ON position_permissions.permission_id = permissions.id").
@@ -184,7 +201,7 @@ func GetEmployeePermissionsByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка загрузки прав роли"})
 		return
 	}
-
+	// Получаем индивидуальные (персональные) права, которые назначены только этому сотруднику (не через должность)
 	var userPermissions []models.UserPermission
 	if err := database.DB.
 		Where("employee_id = ?", employeeID).
@@ -192,7 +209,11 @@ func GetEmployeePermissionsByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка загрузки пользовательских прав"})
 		return
 	}
-
+	// Используем map[uint]Permission, чтобы избежать повторов.
+	//
+	//Добавляем сначала ролевые, потом пользовательские, перезаписывая, если нужно.
+	//
+	//Каждое право проверяется на visible_to_user = true.
 	permissionsMap := map[uint]models.Permission{}
 	for _, p := range rolePermissions {
 		permissionsMap[p.ID] = p
@@ -204,19 +225,20 @@ func GetEmployeePermissionsByID(c *gin.Context) {
 			permissionsMap[up.PermissionID] = perm
 		}
 	}
-
+	// Формируем итоговый массив прав пользователя
 	var finalPermissions []models.Permission
 	for _, p := range permissionsMap {
 		finalPermissions = append(finalPermissions, p)
 	}
 
-	var allPermissions []models.Permission
+	var allPermissions []models.Permission // Загружаются все разрешения, которые можно показать пользователю
 	if err := database.DB.Where("visible_to_user = true").Find(&allPermissions).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка загрузки всех разрешений"})
 		return
 	}
 
 	// Важно вернуть отдельно все разрешения и idшники разрешённых
+	// Получение ID тех прав, которые уже назначены
 	var grantedIDs []uint
 	for _, p := range finalPermissions {
 		grantedIDs = append(grantedIDs, p.ID)
@@ -228,6 +250,7 @@ func GetEmployeePermissionsByID(c *gin.Context) {
 	})
 }
 
+// Словарь зависимости
 var permissionDependencies = map[string][]string{
 	"/units/delete/:id": {"/units/get/:id", "/units", "/units/list"},
 	"/units/add":        {"/units/get/:id", "/units", "/units/list"},
@@ -284,10 +307,11 @@ func UpdatePositionPermissions(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса"})
 		return
 	}
-
+	// Начинаем транзакцию. Все последующие действия будут либо подтверждены, либо отменены в случае ошибки
 	tx := database.DB.Begin()
 
 	// Получаем имена разрешений по их ID
+	// Находим разрешения в БД по переданным ID. Получаем их имена (permission.Name), так как дальнейшая работа опирается на имена.
 	var permissionNames []string
 	var permissions []models.Permission
 	if err := tx.Where("id IN ?", req.PermissionIDs).Find(&permissions).Error; err != nil {
@@ -300,13 +324,18 @@ func UpdatePositionPermissions(c *gin.Context) {
 		permissionNames = append(permissionNames, p.Name)
 	}
 
-	// Удаляем старые разрешения
+	// Удаляем все старые разрешения, связанные с должностью. Очищаем таблицу position_permissions.
 	if err := tx.Where("position_id = ?", positionID).Delete(&models.PositionPermission{}).Error; err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка удаления старых разрешений"})
 		return
 	}
-
+	// Обработка зависимостей
+	//Используем map как set, чтобы избежать дубликатов.
+	//
+	//Находим все зависимые разрешения, указанные в permissionDependencies.
+	//
+	//Например: если назначено /units/add, автоматически добавятся "/units/get/:id", "/units", "/units/list"
 	permissionSet := make(map[string]struct{})
 
 	// Обрабатываем зависимости на основе имен
@@ -320,6 +349,11 @@ func UpdatePositionPermissions(c *gin.Context) {
 	}
 
 	// Добавляем разрешения
+	// По всем уникальным именам разрешений:
+	//
+	//Находим объект Permission по имени.
+	//
+	//Если не найдено — ошибка, откат транзакции.
 	for permissionName := range permissionSet {
 		var permission models.Permission
 		if err := tx.Where("name = ?", permissionName).First(&permission).Error; err != nil {

@@ -138,11 +138,13 @@ document.querySelectorAll(".edit-btn").forEach(button => {
 
 // Добавление сотрудника
 document.getElementById("addBtn").addEventListener("click", () => {
-    fetch("/positions/list")
-        .then(response => response.json())
-        .then(posData => {
-            if (!posData.success || !posData.positions) {
-                Swal.fire("Ошибка!", "Не удалось загрузить должности.", "error");
+    Promise.all([
+        fetch("/positions/list").then(res => res.json()),
+        fetch("/employees/next-username").then(res => res.json())
+    ])
+        .then(([posData, userData]) => {
+            if (!posData.success || !posData.positions || !userData.username) {
+                Swal.fire("Ошибка!", "Не удалось загрузить данные.", "error");
                 return;
             }
 
@@ -151,36 +153,41 @@ document.getElementById("addBtn").addEventListener("click", () => {
             ).join("");
 
             showModal('Добавить запись', `
-                <form id="addForm">
-                    <div class="form-group">
-                        <label for="fullName">ФИО:</label>
-                        <input type="text" id="fullName" class="input-field" placeholder="Введите ФИО">
-                    </div>
-                    <div class="form-group">
-                        <label for="positionId">Должность:</label>
-                        <select id="positionId" class="input-field">${posOptions}</select>
-                    </div>
-                    <div class="form-group">
-                        <label for="salary">Оклад:</label>
-                        <input type="number" id="salary" class="input-field" step="0.01" placeholder="Введите оклад">
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Адрес:</label>
-                        <input type="text" id="address" class="input-field" placeholder="Введите адрес">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Телефон:</label>
-                        <input type="text" id="phone" class="input-field" placeholder="Введите телефон">
-                    </div>
-                </form>
-            `, () => {
+            <form id="addForm">
+                <div class="form-group">
+                    <label for="fullName">ФИО:</label>
+                    <input type="text" id="fullName" class="input-field" placeholder="Введите ФИО">
+                </div>
+                <div class="form-group">
+                    <label for="username">Имя пользователя:</label>
+                    <input type="text" id="username" class="input-field" placeholder="Введите логин" value="${userData.username}">
+                </div>
+                <div class="form-group">
+                    <label for="positionId">Должность:</label>
+                    <select id="positionId" class="input-field">${posOptions}</select>
+                </div>
+                <div class="form-group">
+                    <label for="salary">Оклад:</label>
+                    <input type="number" id="salary" class="input-field" step="0.01" placeholder="Введите оклад">
+                </div>
+                <div class="form-group">
+                    <label for="address">Адрес:</label>
+                    <input type="text" id="address" class="input-field" placeholder="Введите адрес">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон:</label>
+                    <input type="text" id="phone" class="input-field" placeholder="Введите телефон">
+                </div>
+            </form>
+        `, () => {
                 const full_name = document.getElementById("fullName").value.trim();
+                const username = document.getElementById("username").value.trim();
                 const position_id = parseInt(document.getElementById("positionId").value);
                 const salary = parseFloat(document.getElementById("salary").value);
                 const address = document.getElementById("address").value.trim();
                 const phone = document.getElementById("phone").value.trim();
 
-                if (!full_name || isNaN(position_id) || isNaN(salary)) {
+                if (!full_name || !username || isNaN(position_id) || isNaN(salary)) {
                     Swal.showValidationMessage("Пожалуйста, заполните все обязательные поля.");
                     return false;
                 }
@@ -188,7 +195,7 @@ document.getElementById("addBtn").addEventListener("click", () => {
                 return fetch("/employees/add", {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ full_name, position_id, salary, address, phone })
+                    body: JSON.stringify({ full_name, username, position_id, salary, address, phone })
                 })
                     .then(response => response.json())
                     .then(data => {

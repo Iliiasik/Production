@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -10,8 +11,41 @@ import (
 	"time"
 )
 
+func ShowLoginPage(c *gin.Context) {
+	// Пытаемся получить токен из куки
+	tokenStr, err := c.Cookie("token")
+	if err == nil {
+		// Проверяем валидность токена
+		claims, err := ValidateJWT(tokenStr)
+		if err == nil && claims != nil {
+			// Токен валиден, перенаправляем на /home
+			c.Redirect(302, "/home")
+			return
+		}
+	}
+
+	// Если нет токена или он невалиден, показываем страницу логина
+	c.HTML(200, "login.html", gin.H{})
+}
+func ValidateJWT(tokenStr string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok {
+		return nil, fmt.Errorf("неверные claims")
+	}
+
+	return claims, nil
+}
+
 func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14) // 14 мощный хеш, но долгий
 	return string(bytes), err
 }
 
@@ -20,7 +54,8 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-var JwtKey = []byte("secret_key") // используй переменные окружения на проде
+// Секретный ключ, используемый для подписания и валидации JWT (Для прода необходимо засунуть его в env)
+var JwtKey = []byte("secret_key")
 
 type Claims struct {
 	EmployeeID uint   `json:"employee_id"`
@@ -29,6 +64,15 @@ type Claims struct {
 }
 
 func GenerateJWT(employeeID uint, username string) (string, error) {
+	// Создает JWT-токен, содержащий employeeID и username.
+	//
+	//ExpiresAt — токен истекает через 24 часа.
+	//
+	//IssuedAt — время выпуска токена.
+	//
+	//Используется алгоритм HS256 и секретный ключ JwtKey.
+	//
+	//Возвращает подписанный токен в виде строки.
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		EmployeeID: employeeID,
@@ -111,6 +155,7 @@ func ChangePassword(c *gin.Context) {
 
 	// Обновляем запись сотрудника в базе данных
 	employee.PasswordHash = hashedPassword
+	employee.IsPasswordChanged = true // Устанавливаем флаг, что пароль был изменен
 	if err := database.DB.Save(&employee).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка обновления пароля"})
 		return

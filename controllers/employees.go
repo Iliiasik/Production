@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"production/database"
@@ -139,10 +140,33 @@ func GetAllPositions(c *gin.Context) {
 	c.JSON(200, gin.H{"success": true, "positions": positions})
 }
 func AddEmployee(c *gin.Context) {
-	var employee models.Employee
-	if err := c.ShouldBindJSON(&employee); err != nil {
+	var input struct {
+		FullName   string  `json:"full_name"`
+		Username   string  `json:"username"`
+		PositionID uint    `json:"position_id"`
+		Salary     float64 `json:"salary"`
+		Address    string  `json:"address"`
+		Phone      string  `json:"phone"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(400, gin.H{"error": "Некорректные данные"})
 		return
+	}
+
+	passwordHash, err := HashPassword(input.Username)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Ошибка при создании пароля"})
+		return
+	}
+
+	employee := models.Employee{
+		FullName:     input.FullName,
+		Username:     input.Username,
+		PasswordHash: passwordHash,
+		PositionID:   input.PositionID,
+		Salary:       input.Salary,
+		Address:      input.Address,
+		Phone:        input.Phone,
 	}
 
 	if err := database.DB.Create(&employee).Error; err != nil {
@@ -151,4 +175,14 @@ func AddEmployee(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"success": true})
+}
+func GetNextUsername(c *gin.Context) {
+	var count int64
+	if err := database.DB.Model(&models.Employee{}).Count(&count).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Ошибка при подсчёте пользователей"})
+		return
+	}
+
+	username := fmt.Sprintf("emp%03d", count+1)
+	c.JSON(200, gin.H{"username": username})
 }
