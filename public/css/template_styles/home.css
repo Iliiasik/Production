@@ -118,7 +118,6 @@ body {
   box-sizing: border-box;
   color: rgba(0, 0, 0, 0.85);
   cursor: pointer;
-  display: inline-flex;
   font-family: "TildaSans", serif;
   font-size: 16px;
   font-weight: 600;
@@ -129,7 +128,6 @@ body {
   text-decoration: none;
   transition: all 250ms;
   user-select: none;
-  -webkit-user-select: none;
   touch-action: manipulation;
   vertical-align: baseline;
   width: auto;

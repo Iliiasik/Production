@@ -1,0 +1,53 @@
+.report-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.report-frame {
+  background: linear-gradient(135deg, #181818, #3f3f3f);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.report-form {
+  display: flex;
+  gap: 2rem;
+}
+
+.report-select {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+}
+
+.report-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.report-heading {
+  padding: 0.5rem 1.5rem;
+}
+
+.report-heading h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/*# sourceMappingURL=reports.css.map */

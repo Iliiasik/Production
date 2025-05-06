@@ -62,8 +62,8 @@
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  border: 1px solid #34974d;
-  background-color: #3aa856;
+  border: 1px solid #484848;
+  background-color: #242424;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .button__text {
@@ -77,7 +77,7 @@
 .button__icon {
   height: 100%;
   width: 39px;
-  background-color: #34974d;
+  background-color: #484848;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,10 +93,10 @@
   transform: rotate(180deg) scale(1.1);
 }
 .button:active {
-  border-color: #2e8644;
+  border-color: #1A1A1A;
 }
 .button:active .button__icon {
-  background-color: #2e8644;
+  background-color: #1A1A1A;
 }
 
 .action-buttons {

@@ -2,11 +2,16 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"production/controllers"
 	"production/middleware"
 )
 
 func RegisterRoutes(r *gin.Engine) {
+
+	r.GET("/reports", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "reports.html", nil)
+	})
 
 	r.GET("/", controllers.ShowLoginPage)
 
@@ -117,6 +122,11 @@ func RegisterRoutes(r *gin.Engine) {
 		adminGroup.GET("/users/:id/role", middleware.Authorize("/admin/users/:id/role"), controllers.GetRoleByUserID)
 
 		adminGroup.GET("/permissions", middleware.Authorize("/admin/permissions"), controllers.AllPermissions)
+	}
+
+	reportsGroup := r.Group("/reports")
+	{
+		reportsGroup.POST("/sales", controllers.SalesReportHandler)
 	}
 
 }

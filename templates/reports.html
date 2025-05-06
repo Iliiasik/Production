@@ -9,14 +9,14 @@
     <link rel="stylesheet" href="/assets/css/elements/footer.css">
     <link rel="stylesheet" href="/assets/css/elements/table.css">
     <link rel="stylesheet" href="/assets/css/elements/scrollbar.css">
-    <link rel="stylesheet" href="/assets/css/elements/buttons.css">
-    <link rel="stylesheet" href="/assets/css/template_styles/budget.css">
+    <link rel="stylesheet" href="/assets/css/template_styles/home.css">
+    <link rel="stylesheet" href="/assets/css/template_styles/reports.css">
     <link rel="stylesheet" href="/assets/css/elements/sweetalert-custom.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/assets/js/elements/navbar.js"></script>
     <script src="assets/js/templates/general.js" defer></script>
-    <script src="assets/js/templates/budget.js" defer></script>
+    <script src="assets/js/templates/reports.js" defer></script>
 
 </head>
 <body>
@@ -29,6 +29,8 @@
                 <span>Профиль</span>
             </a>
         </div>
+
+
 
         <nav>
             <div class="nav-mobile">
@@ -77,45 +79,45 @@
     </div>
 </section>
 <div class="wrapper">
+
     <main>
-        <div class="content">
-            <div class="header-container budget-header">
-                <div class="header-title">Управление бюджетом</div>
-                {{if .budget}}
-                <a href="#" class="icon-button edit-btn right-tooltip" data-id="{{(index .budget 0).ID}}" data-tooltip="Редактировать">
-                    <img src="assets/images/actions/edit.svg" alt="Edit">
-                </a>
-                {{end}}
-            </div>
+        <div class="report-wrapper">
+            <div class="report-frame">
+                <div class="report-form">
+                    <div class="report-select">
+                        <label for="report-select">Выберите раздел</label>
+                        <select id="report-select" class="glass-select">
+                            <option value="" disabled selected>Выберите раздел</option>
+                            <option value="sales">Продажи</option>
+                            <option value="salary">Зарплата</option>
+                            <option value="credit">Кредиты</option>
+                            <option value="inventory">Склад</option>
+                        </select>
+                    </div>
 
-            {{if .budget}}
-            <div class="budget-wrapper">
-                <div class="main-budget-card glass-card">
-                    <img src="assets/images/logos/budget.svg" alt="Бюджет" class="budget-icon">
-                    <div class="budget-info">
-                        <h2>Бюджет</h2>
-                        <p class="budget-amount">{{(index .budget 0).TotalAmountFormatted}}</p>
+                    <div class="report-controls">
+                        <div class="report-date">
+                            <label for="start-date">С даты</label>
+                            <input type="date" id="start-date" class="glass-select" />
+                        </div>
+                        <div class="report-date">
+                            <label for="end-date">По дату</label>
+                            <input type="date" id="end-date" class="glass-select" />
+                        </div>
+                        <button class="profile-button" id="generate-report-btn">Сгенерировать</button>
+                        <div class="report-export" style="display: none;">
+                            <button id="export-btn" class="profile-button">Экспорт</button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="sub-cards">
-                    <div class="sub-card glass-card">
-                        <span>Наценка (%)</span>
-                        <p>{{(index .budget 0).Markup}}</p>
-                    </div>
-                    <div class="sub-card glass-card">
-                        <span>Бонус (%)</span>
-                        <p>{{(index .budget 0).SalaryBonus}}</p>
-                    </div>
-                </div>
             </div>
-            {{else}}
-            <div class="no-data-message">
-                <p>Данные не найдены.</p>
-            </div>
-            {{end}}
         </div>
+
+        <!-- Контейнер для таблицы -->
+        <div id="report-result" class="report-result"></div>
     </main>
+
+
     <footer class="site-footer">
         <div class="footer-links-container">
             <div class="footer-links">
@@ -126,7 +128,7 @@
                 <h6>Формы</h6>
                 <ul>
                     <li><a href="/raw-materials">Сырье</a></li>
-                    <li><a href="/finished-goods">Продукция</a></li>
+                    <li><a href="/">Продукция</a></li>
                     <li><a href="/units">Единицы измерения</a></li>
                 </ul>
             </div>

@@ -5,6 +5,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"production/database"
@@ -12,7 +13,6 @@ import (
 	"strconv"
 )
 
-// Личный кабинет
 func HomePage(c *gin.Context) {
 	// Пытаемся получить JWT-токен из cookie с именем "token".
 	tokenString, err := c.Cookie("token")
@@ -250,7 +250,7 @@ func GetEmployeePermissionsByID(c *gin.Context) {
 	})
 }
 
-// Словарь зависимости
+// Словарь зависимостей
 var permissionDependencies = map[string][]string{
 	"/units/delete/:id": {"/units/get/:id", "/units", "/units/list"},
 	"/units/add":        {"/units/get/:id", "/units", "/units/list"},
@@ -307,79 +307,61 @@ func UpdatePositionPermissions(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса"})
 		return
 	}
-	// Начинаем транзакцию. Все последующие действия будут либо подтверждены, либо отменены в случае ошибки
-	tx := database.DB.Begin()
 
-	// Получаем имена разрешений по их ID
-	// Находим разрешения в БД по переданным ID. Получаем их имена (permission.Name), так как дальнейшая работа опирается на имена.
-	var permissionNames []string
-	var permissions []models.Permission
-	if err := tx.Where("id IN ?", req.PermissionIDs).Find(&permissions).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка получения разрешений"})
-		return
-	}
-
-	for _, p := range permissions {
-		permissionNames = append(permissionNames, p.Name)
-	}
-
-	// Удаляем все старые разрешения, связанные с должностью. Очищаем таблицу position_permissions.
-	if err := tx.Where("position_id = ?", positionID).Delete(&models.PositionPermission{}).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка удаления старых разрешений"})
-		return
-	}
-	// Обработка зависимостей
-	//Используем map как set, чтобы избежать дубликатов.
-	//
-	//Находим все зависимые разрешения, указанные в permissionDependencies.
-	//
-	//Например: если назначено /units/add, автоматически добавятся "/units/get/:id", "/units", "/units/list"
-	permissionSet := make(map[string]struct{})
-
-	// Обрабатываем зависимости на основе имен
-	for _, permName := range permissionNames {
-		permissionSet[permName] = struct{}{}
-		if deps, ok := permissionDependencies[permName]; ok {
-			for _, dep := range deps {
-				permissionSet[dep] = struct{}{}
-			}
-		}
-	}
-
-	// Добавляем разрешения
-	// По всем уникальным именам разрешений:
-	//
-	//Находим объект Permission по имени.
-	//
-	//Если не найдено — ошибка, откат транзакции.
-	for permissionName := range permissionSet {
-		var permission models.Permission
-		if err := tx.Where("name = ?", permissionName).First(&permission).Error; err != nil {
-			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка поиска разрешения: " + permissionName})
-			return
-		}
-
-		newPermission := models.PositionPermission{
-			PositionID:   parseUint(positionID),
-			PermissionID: permission.ID,
-		}
-		if err := tx.Create(&newPermission).Error; err != nil {
-			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка добавления разрешений"})
-			return
-		}
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка фиксации транзакции"})
+	if err := updatePositionPermissionsTransaction(positionID, req.PermissionIDs); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Разрешения роли успешно обновлены"})
 }
+
+func updatePositionPermissionsTransaction(positionID string, permissionIDs []uint) error {
+	tx := database.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	permissionNames, err := getPermissionNames(tx, permissionIDs)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("Ошибка получения разрешений: %v", err)
+	}
+
+	if err := tx.Where("position_id = ?", positionID).Delete(&models.PositionPermission{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("Ошибка удаления старых разрешений: %v", err)
+	}
+
+	permissionSet := buildPermissionSet(permissionNames)
+
+	if err := addNewPositionPermissions(tx, parseUint(positionID), permissionSet); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func addNewPositionPermissions(tx *gorm.DB, positionID uint, permissionSet map[string]struct{}) error {
+	for permissionName := range permissionSet {
+		var permission models.Permission
+		if err := tx.Where("name = ?", permissionName).First(&permission).Error; err != nil {
+			return fmt.Errorf("Ошибка поиска разрешения: %s: %v", permissionName, err)
+		}
+
+		if err := tx.Create(&models.PositionPermission{
+			PositionID:   positionID,
+			PermissionID: permission.ID,
+		}).Error; err != nil {
+			return fmt.Errorf("Ошибка добавления разрешений: %v", err)
+		}
+	}
+	return nil
+}
+
 func UpdateUserPermissions(c *gin.Context) {
 	employeeID := c.Param("id")
 	var req UpdatePermissionsRequest
@@ -389,31 +371,58 @@ func UpdateUserPermissions(c *gin.Context) {
 		return
 	}
 
-	tx := database.DB.Begin()
-
-	// Получаем имена разрешений по их ID
-	var permissionNames []string
-	var permissions []models.Permission
-	if err := tx.Where("id IN ?", req.PermissionIDs).Find(&permissions).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка получения разрешений"})
+	if err := updateUserPermissionsTransaction(employeeID, req.PermissionIDs); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	for _, p := range permissions {
-		permissionNames = append(permissionNames, p.Name)
+	c.JSON(http.StatusOK, gin.H{"message": "Разрешения сотрудника успешно обновлены"})
+}
+
+func updateUserPermissionsTransaction(employeeID string, permissionIDs []uint) error {
+	tx := database.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	permissionNames, err := getPermissionNames(tx, permissionIDs)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("Ошибка получения разрешений: %v", err)
 	}
 
-	// Удаляем старые разрешения
 	if err := tx.Where("employee_id = ?", employeeID).Delete(&models.UserPermission{}).Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка удаления старых разрешений"})
-		return
+		return fmt.Errorf("Ошибка удаления старых разрешений: %v", err)
 	}
 
-	permissionSet := make(map[string]struct{})
+	permissionSet := buildPermissionSet(permissionNames)
 
-	// Обрабатываем зависимости на основе имен
+	if err := addNewPermissions(tx, parseUint(employeeID), permissionSet); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func getPermissionNames(tx *gorm.DB, permissionIDs []uint) ([]string, error) {
+	var permissions []models.Permission
+	if err := tx.Where("id IN ?", permissionIDs).Find(&permissions).Error; err != nil {
+		return nil, err
+	}
+
+	names := make([]string, len(permissions))
+	for i, p := range permissions {
+		names[i] = p.Name
+	}
+	return names, nil
+}
+
+func buildPermissionSet(permissionNames []string) map[string]struct{} {
+	permissionSet := make(map[string]struct{})
 	for _, permName := range permissionNames {
 		permissionSet[permName] = struct{}{}
 		if deps, ok := permissionDependencies[permName]; ok {
@@ -422,35 +431,25 @@ func UpdateUserPermissions(c *gin.Context) {
 			}
 		}
 	}
+	return permissionSet
+}
 
-	// Добавляем разрешения
+func addNewPermissions(tx *gorm.DB, employeeID uint, permissionSet map[string]struct{}) error {
 	for permissionName := range permissionSet {
 		var permission models.Permission
 		if err := tx.Where("name = ?", permissionName).First(&permission).Error; err != nil {
-			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка поиска разрешения: " + permissionName})
-			return
+			return fmt.Errorf("Ошибка поиска разрешения: %s: %v", permissionName, err)
 		}
 
-		newPermission := models.UserPermission{
-			EmployeeID:   parseUint(employeeID),
+		if err := tx.Create(&models.UserPermission{
+			EmployeeID:   employeeID,
 			PermissionID: permission.ID,
-		}
-		if err := tx.Create(&newPermission).Error; err != nil {
-			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка добавления разрешений"})
-			return
+		}).Error; err != nil {
+			return fmt.Errorf("Ошибка добавления разрешений: %v", err)
 		}
 	}
-
-	if err := tx.Commit().Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка фиксации транзакции"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Разрешения сотрудника успешно обновлены"})
+	return nil
 }
-
 func parseUint(s string) uint {
 	id, _ := strconv.ParseUint(s, 10, 64)
 	return uint(id)
