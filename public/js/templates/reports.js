@@ -1,10 +1,10 @@
 // Карта маршрутов для разделов
 const reportRoutes = {
     sales: '/reports/sales',
-    salary: '/reports/salary',
-    credit: '/reports/credit',
-    inventory: '/reports/inventory'
-    // добавляй остальные разделы здесь
+    productions: '/reports/productions',
+    purchases: '/reports/purchases',
+    salaries: '/reports/salaries',
+    payments: '/reports/payments'
 };
 
 // Главная кнопка генерации

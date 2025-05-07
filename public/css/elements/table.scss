@@ -3,9 +3,8 @@
 $base-spacing-unit: 24px;
 $half-spacing-unit: math.div($base-spacing-unit, 2);
 
-$color-primary: #4CAF50;
 $color-background: #f9f9f9;
-$color-header: #3f5d67;
+$color-header: #313337;
 $color-form-highlight: #f1f1f1;
 $color-text: #333333;
 $color-text-header: #ffffff;
@@ -27,9 +26,6 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 18px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: $base-spacing-unit auto;
   padding: $base-spacing-unit;
 }
@@ -46,7 +42,6 @@ body {
 .header__item {
   flex: 1 1 20%;
   text-align: center;
-  text-transform: uppercase;
   color: $color-text-header;
 }
 
