@@ -131,6 +131,7 @@ func RegisterRoutes(r *gin.Engine) {
 		reportsGroup.POST("/purchases", controllers.PurchaseReportHandler)
 		reportsGroup.POST("/salaries", controllers.SalaryReportHandler)
 		reportsGroup.POST("/payments", controllers.CreditReportHandler)
+		reportsGroup.POST("/export", controllers.ExportReport)
 	}
 
 }

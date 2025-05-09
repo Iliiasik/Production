@@ -91,22 +91,75 @@ function insertReportTable(html) {
     }
 }
 
+// Модифицированная функция showExportModal
 function showExportModal() {
     Swal.fire({
         title: 'Выберите формат экспорта',
         html: `
             <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
-                <button class="profile-button" data-type="word">
+                <button class="profile-button" onclick="exportReport('docx')">
                     <img src="/assets/images/logos/word.svg" alt="Word" width="32"><br>Word
                 </button>
-                <button class="profile-button" data-type="excel">
+                <button class="profile-button" onclick="exportReport('xlsx')">
                     <img src="/assets/images/logos/excel.svg" alt="Excel" width="32"><br>Excel
                 </button>
-                <button class="profile-button" data-type="pdf">
+                <button class="profile-button" onclick="exportReport('pdf')">
                     <img src="/assets/images/logos/pdf.svg" alt="PDF" width="32"><br>PDF
                 </button>
             </div>
         `,
         showConfirmButton: false
     });
+}
+
+// Универсальная функция экспорта
+async function exportReport(format) {
+    Swal.fire({
+        title: 'Подготовка отчёта...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    try {
+        const reportContent = document.getElementById('report-result').innerHTML;
+        const reportTitle = document.querySelector('.report-title')?.textContent || 'Отчёт';
+        const period = document.querySelector('.report-period')?.textContent || '';
+
+        const response = await fetch('/reports/export', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: reportContent,
+                title: reportTitle,
+                period: period,
+                format: format
+            })
+        });
+
+        if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${reportTitle.replace(/ /g, '_')}_${new Date().toISOString().slice(0,10)}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        Swal.close();
+    } catch (err) {
+        console.error('Ошибка экспорта отчёта:', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Ошибка',
+            text: 'Не удалось экспортировать отчёт.',
+            customClass: {
+                confirmButton: 'custom-button'
+            }
+        });
+    }
 }

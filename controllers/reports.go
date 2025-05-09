@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+
 	"net/http"
 	"production/database"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Каждая функция прописана отдельно. Необходимо для системы доступов и ролей.
