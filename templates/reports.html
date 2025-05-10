@@ -31,12 +31,11 @@
                         <label for="report-select">Выберите раздел</label>
                         <select id="report-select" class="glass-select">
                             <option value="" disabled selected>Выберите раздел</option>
-                            <option value="sales">Продажи</option>
-                            <option value="productions">Производство</option>
-                            <option value="purchases">Закупки</option>
-                            <option value="salaries">Зарплаты</option>
-                            <option value="payments">Выплаты по кредитам</option>
+                            {{ range .reportPermissions }}
+                            <option value="{{ .Route }}"> {{ .Label }} </option>
+                            {{ end }}
                         </select>
+
                     </div>
 
                     <div class="report-controls">

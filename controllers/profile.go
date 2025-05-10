@@ -293,6 +293,12 @@ var permissionDependencies = map[string][]string{
 	"/salaries":                  {"/salaries/:year/:month", "/salaries/calculate/:year/:month", "/salaries/total-unpaid/:year/:month"},
 	"/salaries/pay/:year/:month": {"/salaries"},
 	"/salaries/edit/:id":         {"/salaries"},
+
+	"/reports/sales":       {"/reports"},
+	"/reports/productions": {"/reports"},
+	"/reports/salaries":    {"/reports"},
+	"/reports/purchases":   {"/reports"},
+	"/reports/payments":    {"/reports"},
 }
 
 type UpdatePermissionsRequest struct {

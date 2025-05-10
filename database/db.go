@@ -168,13 +168,20 @@ func seedPermissions() {
 		{Name: "/admin/roles/:id/permissions", Description: "Просмотр и управление разрешениями роли", Category: "Админ", VisibleToUser: false},
 		{Name: "/admin/roles/:id/permissions/update", Description: "Обновление разрешений роли", Category: "Админ", VisibleToUser: false},
 
-		// Управление пользователями
 		{Name: "/admin/users", Description: "Управление пользователями", Category: "Админ", VisibleToUser: false},
 		{Name: "/admin/users/:id/permissions", Description: "Просмотр и управление разрешениями пользователя", Category: "Админ", VisibleToUser: false},
 		{Name: "/admin/users/:id/permissions/update", Description: "Обновление разрешений пользователя", Category: "Админ", VisibleToUser: false},
 		{Name: "/admin/users/:id/role", Description: "Просмотр роли пользователя", Category: "Админ", VisibleToUser: false},
 
 		{Name: "/admin/permissions", Description: "Управление разрешениями", Category: "Админ", VisibleToUser: false},
+
+		{Name: "/reports", Description: "Страница отчетов", Category: "Отчеты", VisibleToUser: false},
+		{Name: "/reports/sales", Description: "Отчеты о продажах", Category: "Отчеты", VisibleToUser: true},
+		{Name: "/reports/productions", Description: "Отчеты по производству", Category: "Отчеты", VisibleToUser: true},
+		{Name: "/reports/purchases", Description: "Отчеты о закупках", Category: "Отчеты", VisibleToUser: true},
+		{Name: "/reports/salaries", Description: "Отчеты о зарплатах", Category: "Отчеты", VisibleToUser: true},
+		{Name: "/reports/payments", Description: "Отчеты по кредитным выплатам", Category: "Отчеты", VisibleToUser: true},
+		{Name: "/reports/export", Description: "Экспорт отчетов", Category: "Отчеты", VisibleToUser: true},
 	}
 
 	for _, p := range permissions {

@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
+	"production/models"
 
 	"net/http"
 	"production/database"
@@ -704,4 +706,86 @@ func CreditReportHandler(c *gin.Context) {
 	html.WriteString(`</div></div>`)
 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html.String()))
+}
+
+func ShowReportsPage(c *gin.Context) {
+	claims := GetClaimsFromContext(c)
+	if claims == nil {
+		c.String(http.StatusUnauthorized, "Ошибка авторизации")
+		return
+	}
+	employeeID := claims.EmployeeID
+
+	var allReportPerms []models.Permission
+	if err := database.DB.Where("category = ? AND visible_to_user = true", "Отчеты").Find(&allReportPerms).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Ошибка получения разрешений")
+		return
+	}
+
+	var userPerms []models.UserPermission
+	_ = database.DB.Where("employee_id = ?", employeeID).Find(&userPerms)
+
+	var emp models.Employee
+	if err := database.DB.First(&emp, employeeID).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Пользователь не найден")
+		return
+	}
+
+	var positionPerms []models.PositionPermission
+	_ = database.DB.Where("position_id = ?", emp.PositionID).Find(&positionPerms)
+
+	permIDMap := make(map[uint]bool)
+	for _, up := range userPerms {
+		permIDMap[up.PermissionID] = true
+	}
+	for _, pp := range positionPerms {
+		permIDMap[pp.PermissionID] = true
+	}
+
+	// Убираем префикс /reports/ и используем ключи для маршрутов
+	routeToLabel := map[string]string{
+		"sales":       "Продажи",
+		"productions": "Производство",
+		"purchases":   "Закупки",
+		"salaries":    "Зарплаты",
+		"payments":    "Выплаты по кредитам",
+	}
+
+	var availableReports []map[string]string
+	for _, perm := range allReportPerms {
+		if permIDMap[perm.ID] {
+			// Извлекаем только название маршрута без /reports/
+			routeKey := strings.TrimPrefix(perm.Name, "/reports/")
+			if label, ok := routeToLabel[routeKey]; ok {
+				availableReports = append(availableReports, map[string]string{
+					"Route": routeKey, // передаем только имя маршрута (без /reports/)
+					"Label": label,
+				})
+			}
+		}
+	}
+
+	c.HTML(http.StatusOK, "reports.html", gin.H{
+		"reportPermissions": availableReports,
+	})
+}
+func GetClaimsFromContext(c *gin.Context) *Claims {
+	tokenString, err := c.Cookie("token")
+	if err != nil || tokenString == "" {
+		return nil
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+	if err != nil || !token.Valid {
+		return nil
+	}
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok {
+		return nil
+	}
+
+	return claims
 }

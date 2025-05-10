@@ -2,16 +2,11 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"production/controllers"
 	"production/middleware"
 )
 
 func RegisterRoutes(r *gin.Engine) {
-
-	r.GET("/reports", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "reports.html", nil)
-	})
 
 	r.GET("/", controllers.ShowLoginPage)
 
@@ -126,12 +121,13 @@ func RegisterRoutes(r *gin.Engine) {
 
 	reportsGroup := r.Group("/reports")
 	{
-		reportsGroup.POST("/sales", controllers.SalesReportHandler)
-		reportsGroup.POST("/productions", controllers.ProductionReportHandler)
-		reportsGroup.POST("/purchases", controllers.PurchaseReportHandler)
-		reportsGroup.POST("/salaries", controllers.SalaryReportHandler)
-		reportsGroup.POST("/payments", controllers.CreditReportHandler)
-		reportsGroup.POST("/export", controllers.ExportReport)
+		reportsGroup.GET("", middleware.Authorize("/reports"), controllers.ShowReportsPage)
+		reportsGroup.POST("/sales", middleware.Authorize("/reports/sales"), controllers.SalesReportHandler)
+		reportsGroup.POST("/productions", middleware.Authorize("/reports/productions"), controllers.ProductionReportHandler)
+		reportsGroup.POST("/purchases", middleware.Authorize("/reports/purchases"), controllers.PurchaseReportHandler)
+		reportsGroup.POST("/salaries", middleware.Authorize("/reports/salaries"), controllers.SalaryReportHandler)
+		reportsGroup.POST("/payments", middleware.Authorize("/reports/payments"), controllers.CreditReportHandler)
+		reportsGroup.POST("/export", middleware.Authorize("/reports/export"), controllers.ExportReport)
 	}
 
 }
