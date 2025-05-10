@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+var JwtKey []byte
+
 func ShowLoginPage(c *gin.Context) {
 	// Пытаемся получить токен из куки
 	tokenStr, err := c.Cookie("token")
@@ -43,19 +45,14 @@ func ValidateJWT(tokenStr string) (*Claims, error) {
 
 	return claims, nil
 }
-
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14) // 14 мощный хеш, но долгий
 	return string(bytes), err
 }
-
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
-
-// Секретный ключ, используемый для подписания и валидации JWT (Для прода необходимо засунуть его в env)
-var JwtKey = []byte("secret_key")
 
 type Claims struct {
 	EmployeeID uint   `json:"employee_id"`
@@ -120,7 +117,6 @@ func Login(c *gin.Context) {
 	// Перенаправляем на личный кабинет
 	c.Redirect(302, "/home")
 }
-
 func ChangePassword(c *gin.Context) {
 	var request struct {
 		Username        string `json:"username"`
@@ -165,7 +161,6 @@ func ChangePassword(c *gin.Context) {
 	// Возвращаем успешный ответ
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Пароль успешно изменен"})
 }
-
 func Logout(c *gin.Context) {
 	// Удаляем токен из cookies
 	c.SetCookie("token", "", -1, "/", "localhost", false, true) // Устанавливаем токен с истекшим временем

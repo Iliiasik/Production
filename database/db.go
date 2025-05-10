@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -13,11 +12,6 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
-
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
@@ -25,27 +19,25 @@ func InitDB() {
 	port := os.Getenv("DB_PORT")
 
 	if user == "" || password == "" || dbName == "" || host == "" || port == "" {
-		log.Fatal("One or more environment variables are missing")
+		log.Fatal("One or more environment variables for DB are missing")
 	}
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		host, user, password, dbName, port,
 	)
 
+	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-	log.Println("Connection success")
-
-	if DB == nil {
-		log.Fatal("Database connection is nil")
-	}
+	log.Println("Connection to database successful")
 
 	sqlDB, err := DB.DB()
 	if err != nil {
-		log.Fatalf("Error getting DB instance: %v", err)
+		log.Fatalf("Error getting SQL DB instance: %v", err)
 	}
 
 	if err := sqlDB.Ping(); err != nil {
@@ -53,6 +45,7 @@ func InitDB() {
 	}
 	log.Println("Database ping success")
 
+	// Миграции
 	err = DB.AutoMigrate(
 		&models.Unit{},
 		&models.RawMaterial{},
@@ -77,9 +70,8 @@ func InitDB() {
 
 	log.Println("Migrations completed successfully")
 
+	// Инициализация данных
 	seedPermissions()
-
-	// Привязка всех разрешений к роли "Админ"
 	seedAdminPositionPermissions()
 }
 func seedPermissions() {
