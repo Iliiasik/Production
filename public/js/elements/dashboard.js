@@ -5,6 +5,7 @@ const salary = main.dataset.salary;
 const username = main.dataset.username;
 const ispasswordchanged = main.dataset.ispasswordchanged;
 
+// Блок предупреждения пароля
 const passwordChangeWarning = ispasswordchanged === "false" ? `
   <div class="password-warning">
     <img src="assets/images/actions/warning.svg" alt="Warning" class="warning-icon">
@@ -12,7 +13,7 @@ const passwordChangeWarning = ispasswordchanged === "false" ? `
   </div>
 ` : '';
 
-
+// Блок разметки дешборда
 const html = `
 <section class="cards-wrapper">
   <div class="card card--large">
@@ -57,17 +58,338 @@ const html = `
         ${position === 'Админ' ? `
           <button id="manage-access-button" class="profile-button">Управление доступами</button>
         ` : ''}
+        ${position !== 'Директор' ? `
+  <button id="taskboard-button" class="profile-button">Мои задачи</button>
+` : ''}
+${position === 'Директор' ? `
+      <button id="manage-tasks-button" class="profile-button">Управление задачами</button>
+` : ''}
+
       </div>
     </div>
   </div>
+  
 </section>
 `;
-
 main.innerHTML = html;
 
+// Блок учета и контроля задач
+document.getElementById('taskboard-button')?.addEventListener('click', async () => {
+    try {
+        const response = await fetch('/tasks/my');
+        const data = await response.json();
+        const tasks = data.tasks;
 
+        let html = `<h4 style="margin-bottom: 1rem;">Мои задачи</h4>`;
+        if (!tasks || tasks.length === 0) {
+            html += `<p>У вас нет активных задач</p>`;
+        } else {
+            html += `<div class="task-cards-container">`;
+
+            tasks.forEach(task => {
+                const dueDate = task.due_date
+                    ? new Date(task.due_date).toLocaleDateString()
+                    : '—';
+
+                const statusColor = getStatusColor(task.status);
+
+                html += `
+                    <div class="task-card">
+                        <div class="task-card-header">
+                            <div class="status-dot" style="background-color: ${statusColor};"></div>
+                            <strong>${task.title || 'Без названия'}</strong>
+                        </div>
+                        <div class="task-card-body">
+                            <p>${task.description || 'Нет описания'}</p>
+                            <div class="task-meta">
+                                <span><strong>Статус:</strong> ${task.status || 'Неизвестен'}</span>
+                                <span><strong>Срок:</strong> ${dueDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        }
+
+        Swal.fire({
+            title: 'Ваш таскборд',
+            html: html,
+            width: 800,
+            confirmButtonText: 'Закрыть',
+            customClass: {
+                confirmButton: 'custom-button'
+            }
+        });
+
+    } catch (error) {
+        console.error('Ошибка загрузки задач:', error);
+        Swal.fire({
+            title: 'Ошибка',
+            text: 'Не удалось загрузить задачи',
+            icon: 'error',
+            customClass: {
+                confirmButton: 'custom-button'
+            }
+        });
+    }
+    function getStatusColor(status) {
+        switch (status) {
+            case 'Новая':
+                return '#007bff';
+            case 'В работе':
+                return '#ffc107';
+            case 'Завершена':
+                return '#28a745';
+            default:
+                return '#6c757d';
+        }
+    }
+
+});
+document.getElementById('manage-tasks-button')?.addEventListener('click', async () => {
+    try {
+        const response = await fetch('/employees/list');
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error('Не удалось загрузить сотрудников');
+        }
+
+        const employees = data.employees;
+
+        // Удаляем старую панель, если она есть
+        const existing = document.getElementById('permissions-panel');
+        if (existing) existing.remove();
+
+        // Создаем панель
+        const panel = document.createElement('div');
+        panel.id = 'permissions-panel';
+        panel.className = 'permissions-panel'; // Применяем тот же класс, что и для панели доступа
+        panel.innerHTML = `
+            <h4>Задачи</h4>
+                        <div class="select-mode">
+            <button id="add-task-btn" class="profile-button">Добавить задачу</button>
+            <button id="view-tasks-btn" class="profile-button">Просмотр задач</button>
+            </div>
+        `;
+        document.getElementById('user-dashboard').appendChild(panel);
+
+        // Обработчик для добавления задачи через SweetAlert
+        document.getElementById('add-task-btn').addEventListener('click', () => {
+            fetch("/employees/list")
+                .then(res => res.json())
+                .then(empData => {
+                    if (!empData.success || !empData.employees) {
+                        Swal.fire("Ошибка!", "Не удалось загрузить сотрудников.", "error");
+                        return;
+                    }
+
+                    const employeeOptions = empData.employees.map(emp =>
+                        `<option value="${emp.id}">${emp.full_name}</option>`
+                    ).join("");
+
+                    showModal('Добавить запись', `
+                <div class="form-group">
+                    <label for="assign-to">Сотрудник:</label>
+                    <select id="assign-to" class="input-field">${employeeOptions}</select>
+                </div>
+                <div class="form-group">
+                    <label for="task-title">Заголовок:</label>
+                    <input type="text" id="task-title" class="input-field" placeholder="Введите заголовок">
+                </div>
+                <div class="form-group">
+                    <label for="task-desc">Описание:</label>
+                    <textarea id="task-desc" class="input-field" placeholder="Введите описание"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-date">Срок:</label>
+                    <input type="date" id="task-date" class="input-field">
+                </div>
+            `, () => {
+                        const title = document.getElementById("task-title").value.trim();
+                        const description = document.getElementById("task-desc").value.trim();
+                        const assignedTo = parseInt(document.getElementById("assign-to").value);
+                        const dueDateRaw = document.getElementById("task-date").value;
+
+                        if (!title || isNaN(assignedTo) || !dueDateRaw) {
+                            Swal.showValidationMessage("Пожалуйста, заполните все обязательные поля корректно.");
+                            return false;
+                        }
+
+                        return fetch("/tasks", {
+                            method: "POST",
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title,
+                                description,
+                                assigned_to: assignedTo,
+                                due_date: dueDateRaw
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Показываем тост в правом верхнем углу
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: 'Задача успешно добавлена',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        toast: true,
+                                        background: '#f8f9fa',
+                                        timerProgressBar: true
+                                    });
+                                    return true;
+                                } else {
+                                    throw new Error(data.error || "Ошибка сервера");
+                                }
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage(error.message);
+                                return false;
+                            });
+                    }, '700px');
+                })
+                .catch(error => {
+                    Swal.fire("Ошибка!", "Не удалось загрузить данные: " + error.message, "error");
+                });
+        });
+        document.getElementById('view-tasks-btn').addEventListener('click', async () => {
+            try {
+                console.log("Запрос задач...");
+                const response = await fetch('/tasks/list');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Полученные данные:", data);
+
+                if (!data || !data.success || !Array.isArray(data.tasks)) {
+                    throw new Error("Некорректная структура данных");
+                }
+
+                const tasks = data.tasks;
+                if (tasks.length === 0) {
+                    alert("Нет задач для отображения");
+                    return;
+                }
+
+                // Удаляем старую панель
+                const existingPanel = document.getElementById('tasks-panel');
+                if (existingPanel) existingPanel.remove();
+
+                // Создаем новую панель
+                const panel = document.createElement('div');
+                panel.id = 'permissions-panel';
+                panel.className = 'permissions-panel';
+
+                let tasksHtml = `<h4>Список задач (${tasks.length}):</h4>`;
+
+                // Группировка по сотрудникам
+                const groupedTasks = tasks.reduce((acc, task) => {
+                    const key = task.employee?.full_name || 'Не назначено';
+                    if (!acc[key]) {
+                        acc[key] = {
+                            employee: key,
+                            tasks: []
+                        };
+                    }
+                    acc[key].tasks.push(task);
+                    return acc;
+                }, {});
+
+                // Генерация HTML
+                for (const group of Object.values(groupedTasks)) {
+                    tasksHtml += `
+            <div class="permission-category-card">
+                <div class="permission-category-header">
+                    <span>${group.employee}</span>
+                    <svg class="arrow-icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
+                    </svg>
+                </div>
+                <ul class="permission-list hidden">
+        `;
+
+                    group.tasks.forEach(task => {
+                        const dueDate = task.due_date
+                            ? new Date(task.due_date).toLocaleDateString()
+                            : 'не указана';
+
+                        tasksHtml += `
+                <li class="permission-item">
+                    <span class="checkmark">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <circle cx="12" cy="12" r="10" fill="${getStatusColor(task.status)}" />
+                        </svg>
+                    </span>
+                    <div class="task-info">
+                        <span class="permission-desc">${task.title || 'Без названия'}</span><br>
+                        <div class="task-details">
+                            <small><strong>Описание:</strong> ${task.description || 'Не указано'}</small><br>
+                            <small><strong>Срок:</strong> ${dueDate}</small><br>
+                            <small><strong>Статус:</strong> ${task.status || 'Неизвестен'}</small>
+                        </div>
+                    </div>
+                </li>
+            `;
+                    });
+
+                    tasksHtml += `</ul></div>`;
+                }
+
+                tasksHtml += `
+        <div class="actions-center">
+            <button id="close-tasks" class="profile-button">Закрыть</button>
+        </div>
+        `;
+
+                panel.innerHTML = tasksHtml;
+                document.getElementById('user-dashboard').appendChild(panel);
+
+                // Обработчики событий
+                document.getElementById('close-tasks').addEventListener('click', () => panel.remove());
+
+                panel.querySelectorAll('.permission-category-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const list = header.nextElementSibling;
+                        list.classList.toggle('hidden');
+                        header.querySelector('.arrow-icon').classList.toggle('rotated');
+                    });
+                });
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(`Ошибка: ${error.message}`);
+            }
+        });
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Новая':
+                    return '#007bff';
+                case 'В работе':
+                    return '#ffc107';
+                case 'Завершена':
+                    return '#28a745';
+                default:
+                    return '#6c757d';
+            }
+        }
+
+
+    } catch (error) {
+        console.error('Ошибка загрузки сотрудников:', error);
+        Swal.fire('Ошибка', 'Не удалось загрузить сотрудников', 'error');
+    }
+});
+
+// Блок отображения доступов пользователя
 const showPermissionsButton = document.getElementById('show-permissions-button');
-
 showPermissionsButton.addEventListener('click', async () => {
     try {
         const response = await fetch('/user/permissions');
@@ -155,8 +477,8 @@ showPermissionsButton.addEventListener('click', async () => {
     }
 });
 
+// Блок управления доступами
 const manageAccessButton = document.getElementById('manage-access-button');
-
 if (manageAccessButton) {
     manageAccessButton.addEventListener('click', () => {
         // Удаляем старую панель
@@ -482,7 +804,7 @@ if (manageAccessButton) {
     });
 }
 
-
+// Блок операций с паролем (JWT)
 document.getElementById('logout-button').addEventListener('click', function() {
     Swal.fire({
         title: 'Вы уверены?',

@@ -282,9 +282,10 @@ var permissionDependencies = map[string][]string{
 	"/credits/:id/payments": {"/credits"},
 	"/credits/pay/:id":      {"/credits/:id/payments"},
 
-	"/employees/add":        {"/employees", "/employees/list", "/positions/list", "/employees/get/:id"},
-	"/employees/edit/:id":   {"/employees", "/employees/list", "/positions/list", "/employees/get/:id"},
-	"/employees/delete/:id": {"/employees", "/employees/list", "/positions/list", "/employees/get/:id"},
+	"/employees":            {"/employees/list"},
+	"/employees/add":        {"/employees", "/positions/list", "/employees/get/:id"},
+	"/employees/edit/:id":   {"/employees", "/positions/list", "/employees/get/:id"},
+	"/employees/delete/:id": {"/employees", "/positions/list", "/employees/get/:id"},
 
 	"/positions/add":        {"/positions", "/positions/get/:id"},
 	"/positions/edit/:id":   {"/positions", "/positions/get/:id"},

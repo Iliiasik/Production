@@ -130,4 +130,10 @@ func RegisterRoutes(r *gin.Engine) {
 		reportsGroup.POST("/export", middleware.Authorize("/reports/export"), controllers.ExportReport)
 	}
 
+	tasksGroup := r.Group("/tasks")
+	{
+		tasksGroup.GET("/my", middleware.Authorize("/tasks/my"), controllers.GetMyTasks)
+		tasksGroup.POST("", middleware.Authorize("/tasks"), controllers.AssignTask)
+		tasksGroup.GET("/list", middleware.Authorize("/tasks"), controllers.GetTasks)
+	}
 }

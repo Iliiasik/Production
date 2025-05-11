@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Position struct {
 	ID   uint   `json:"id" gorm:"primaryKey"`
 	Name string `json:"name" gorm:"type:varchar(50);unique;not null"`
@@ -31,6 +33,21 @@ type SalaryRecord struct {
 	Bonus              float64  `json:"bonus" gorm:"not null"`
 	TotalSalary        float64  `json:"total_salary" gorm:"not null"`
 	IsPaid             bool     `json:"is_paid" gorm:"default:false"`
+}
+
+type Task struct {
+	ID          uint      `json:"id" gorm:"primaryKey"`
+	Title       string    `json:"title" gorm:"type:varchar(200);not null"`
+	Description string    `json:"description" gorm:"type:text"`
+	Status      string    `json:"status" gorm:"type:varchar(50);default:'Новая'"` // Новая, В работе, Завершена
+	AssignedTo  uint      `json:"assigned_to" gorm:"not null"`                    // FK → employees(id)
+	Employee    Employee  `json:"employee" gorm:"foreignKey:AssignedTo;references:ID;constraint:OnDelete:CASCADE"`
+	CreatedAt   time.Time `json:"created_at"`
+	DueDate     time.Time `json:"due_date"`
+}
+
+func (Task) TableName() string {
+	return "tasks"
 }
 
 func (SalaryRecord) TableName() string {

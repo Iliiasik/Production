@@ -63,6 +63,7 @@ func InitDB() {
 		&models.Permission{},
 		&models.UserPermission{},
 		&models.PositionPermission{},
+		&models.Task{},
 	)
 	if err != nil {
 		log.Fatalf("Error running migrations: %v", err)
@@ -174,6 +175,9 @@ func seedPermissions() {
 		{Name: "/reports/salaries", Description: "Отчеты о зарплатах", Category: "Отчеты", VisibleToUser: true},
 		{Name: "/reports/payments", Description: "Отчеты по кредитным выплатам", Category: "Отчеты", VisibleToUser: true},
 		{Name: "/reports/export", Description: "Экспорт отчетов", Category: "Отчеты", VisibleToUser: true},
+
+		{Name: "/tasks", Description: "Управление задачами", Category: "Профиль", VisibleToUser: true},
+		{Name: "/tasks/my", Description: "Список задач", Category: "Профиль", VisibleToUser: true},
 	}
 
 	for _, p := range permissions {
