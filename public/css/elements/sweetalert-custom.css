@@ -50,6 +50,7 @@
 
 .form-group label {
     display: block;
+    text-align: start;
     margin-bottom: 6px;
     font-weight: 600;
     color: #222;
