@@ -93,7 +93,7 @@ The primary objectives of this system are:
 
 - **Backend**: Go (Gin), PostgreSQL,   
 - **Frontend**: HTML, SCSS, Vanilla JavaScript  
-- **Other**: JWT Auth, SweetAlert2, Role-Based Access (RBAC)
+- **Other**: JWT Auth, SweetAlert2, Casbin - Role-Based Access (RBAC)
 
 ## 🧠 Business Logic & Data Layer
 
